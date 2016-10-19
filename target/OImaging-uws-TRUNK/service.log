@@ -1,0 +1,193 @@
+##########################################################################################################################################################
+########################################### LOG STARTS 2016-10-17 15:54:06.120 (file rotation: daily at 00:00) ###########################################
+##########################################################################################################################################################
+2016-10-17 15:54:06.119	INFO	HTTP	REQUEST_RECEIVED	1476712446117	POST as application/x-www-form-urlencoded at http://127.0.0.1:8080/uws/oimaging/oimaging from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters (PHASE=RUN&filename=inputfile&time=5)
+2016-10-17 15:54:06.121	INFO	UWS	INIT		UWS successfully initialized.
+2016-10-17 15:54:06.127	INFO	JOB	CHANGE_PHASE	1476712446117	The job "1476712446117" goes from PENDING to QUEUED
+2016-10-17 15:54:06.128	INFO	JOB	CHANGE_PHASE	1476712446117	The job "1476712446117" goes from QUEUED to EXECUTING
+2016-10-17 15:54:06.128	INFO	THREAD	START	1476712446117	Thread "1476712446117" started.	1476712446117 (thread ID: 97) is RUNNABLE in the group UWS_GROUP where 1 threads are active
+2016-10-17 15:54:06.129	INFO	JOB	START	1476712446117	Job "1476712446117" started.
+2016-10-17 15:54:06.129	INFO	JOB	CREATED	1476712446117	Job "1476712446117" successfully created and added in the job list "oimaging".
+2016-10-17 15:54:06.133	INFO	HTTP	RESPONSE_SENT	1476712446117	UWS action "Add Job" successfully executed.	HTTP-303 to the user ANONYMOUS as application/x-www-form-urlencoded;charset=UTF-8
+2016-10-17 15:54:06.134	FATAL	JOB	END	1476712446117	The following GRAVE error interrupted the execution of the job 1476712446117.
+Caused by a java.lang.NullPointerException
+	at fr.jmmc.oimaging.uws.OImagingWork.jobWork(OImagingWork.java:58)
+	at uws.job.JobThread.run(JobThread.java:430)
+2016-10-17 15:54:06.135	FATAL	THREAD	END	1476712446117	Thread "1476712446117" ended with an error.	1476712446117 (thread ID: 97) is RUNNABLE in the group UWS_GROUP where 1 threads are active
+2016-10-17 15:54:06.137	INFO	JOB	CHANGE_PHASE	1476712446117	The job "1476712446117" goes from EXECUTING to ERROR
+2016-10-17 15:54:06.138	INFO	JOB	END	1476712446117	Job "1476712446117" ended with the status ERROR
+2016-10-17 15:54:06.580	INFO	HTTP	REQUEST_RECEIVED	1476712446579	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging/1476712446117 from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters ()
+2016-10-17 15:54:06.583	INFO	HTTP	RESPONSE_SENT	1476712446579	UWS action "Get Job" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 15:54:06.639	INFO	HTTP	REQUEST_RECEIVED	1476712446638	POST as application/x-www-form-urlencoded at http://127.0.0.1:8080/uws/oimaging/oimaging/1476712446117/phase from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters (PHASE=RUN)
+2016-10-17 15:54:06.640	INFO	HTTP	RESPONSE_SENT	1476712446638	UWS action "Set UWS Parameter" successfully executed.	HTTP-303 to the user ANONYMOUS as application/x-www-form-urlencoded;charset=UTF-8
+2016-10-17 15:54:06.673	INFO	HTTP	REQUEST_RECEIVED	1476712446672	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters ()
+2016-10-17 15:54:06.673	INFO	HTTP	RESPONSE_SENT	1476712446672	UWS action "List Jobs" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 15:56:17.174	INFO	HTTP	REQUEST_RECEIVED	1476712577173	POST as application/x-www-form-urlencoded at http://127.0.0.1:8080/uws/oimaging/oimaging from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters (PHASE=RUN&filename=inputfile&time=5)
+2016-10-17 15:56:17.174	INFO	JOB	CHANGE_PHASE	1476712577173	The job "1476712577173" goes from PENDING to QUEUED
+2016-10-17 15:56:17.175	INFO	JOB	CHANGE_PHASE	1476712577173	The job "1476712577173" goes from QUEUED to EXECUTING
+2016-10-17 15:56:17.178	INFO	THREAD	START	1476712577173	Thread "1476712577173" started.	1476712577173 (thread ID: 105) is RUNNABLE in the group UWS_GROUP where 2 threads are active
+2016-10-17 15:56:17.179	FATAL	JOB	END	1476712577173	The following GRAVE error interrupted the execution of the job 1476712577173.
+Caused by a 2016-10-17 15:56:17.185	INFO	JOB	START	1476712577173	Job "1476712577173" started.
+2016-10-17 15:56:17.185	INFO	JOB	CREATED	1476712577173	Job "1476712577173" successfully created and added in the job list "oimaging".
+2016-10-17 15:56:17.186	INFO	HTTP	RESPONSE_SENT	1476712577173	UWS action "Add Job" successfully executed.	HTTP-303 to the user ANONYMOUS as application/x-www-form-urlencoded;charset=UTF-8
+java.lang.NullPointerException
+	at fr.jmmc.oimaging.uws.OImagingWork.jobWork(OImagingWork.java:58)
+	at uws.job.JobThread.run(JobThread.java:430)
+2016-10-17 15:56:17.209	FATAL	THREAD	END	1476712577173	Thread "1476712577173" ended with an error.	1476712577173 (thread ID: 105) is RUNNABLE in the group UWS_GROUP where 1 threads are active
+2016-10-17 15:56:17.218	INFO	JOB	CHANGE_PHASE	1476712577173	The job "1476712577173" goes from EXECUTING to ERROR
+2016-10-17 15:56:17.218	INFO	JOB	END	1476712577173	Job "1476712577173" ended with the status ERROR
+2016-10-17 15:56:17.729	INFO	HTTP	REQUEST_RECEIVED	1476712577729	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging/1476712577173 from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters ()
+2016-10-17 15:56:17.730	INFO	HTTP	RESPONSE_SENT	1476712577729	UWS action "Get Job" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 15:56:17.781	INFO	HTTP	REQUEST_RECEIVED	1476712577781	POST as application/x-www-form-urlencoded at http://127.0.0.1:8080/uws/oimaging/oimaging/1476712577173/phase from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters (PHASE=RUN)
+2016-10-17 15:56:17.782	INFO	HTTP	RESPONSE_SENT	1476712577781	UWS action "Set UWS Parameter" successfully executed.	HTTP-303 to the user ANONYMOUS as application/x-www-form-urlencoded;charset=UTF-8
+2016-10-17 15:56:17.792	INFO	HTTP	REQUEST_RECEIVED	1476712577792	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters ()
+2016-10-17 15:56:17.793	INFO	HTTP	RESPONSE_SENT	1476712577792	UWS action "List Jobs" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 15:57:14.834	INFO	HTTP	REQUEST_RECEIVED	1476712634833	POST as application/x-www-form-urlencoded at http://127.0.0.1:8080/uws/oimaging/oimaging from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters (PHASE=RUN&filename=inputfile&time=5)
+2016-10-17 15:57:14.834	INFO	JOB	CHANGE_PHASE	1476712634833	The job "1476712634833" goes from PENDING to QUEUED
+2016-10-17 15:57:14.834	INFO	JOB	CHANGE_PHASE	1476712634833	The job "1476712634833" goes from QUEUED to EXECUTING
+2016-10-17 15:57:14.834	INFO	THREAD	START	1476712634833	Thread "1476712634833" started.	1476712634833 (thread ID: 107) is RUNNABLE in the group UWS_GROUP where 2 threads are active
+2016-10-17 15:57:14.835	FATAL	JOB	END	1476712634833	The following GRAVE error interrupted the execution of the job 1476712634833.
+2016-10-17 15:57:14.835	INFO	JOB	START	1476712634833	Job "1476712634833" started.
+Caused by a java.lang.NullPointerException
+2016-10-17 15:57:14.835	INFO	JOB	CREATED	1476712634833	Job "1476712634833" successfully created and added in the job list "oimaging".
+	at fr.jmmc.oimaging.uws.OImagingWork.jobWork(OImagingWork.java:58)
+	at uws.job.JobThread.run(JobThread.java:430)
+2016-10-17 15:57:14.835	FATAL	THREAD	END	1476712634833	Thread "1476712634833" ended with an error.	1476712634833 (thread ID: 107) is RUNNABLE in the group UWS_GROUP where 2 threads are active
+2016-10-17 15:57:14.835	INFO	HTTP	RESPONSE_SENT	1476712634833	UWS action "Add Job" successfully executed.	HTTP-303 to the user ANONYMOUS as application/x-www-form-urlencoded;charset=UTF-8
+2016-10-17 15:57:14.836	INFO	JOB	CHANGE_PHASE	1476712634833	The job "1476712634833" goes from EXECUTING to ERROR
+2016-10-17 15:57:14.836	INFO	JOB	END	1476712634833	Job "1476712634833" ended with the status ERROR
+2016-10-17 15:57:15.125	INFO	HTTP	REQUEST_RECEIVED	1476712635125	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging/1476712634833 from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters ()
+2016-10-17 15:57:15.126	INFO	HTTP	RESPONSE_SENT	1476712635125	UWS action "Get Job" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 15:57:15.191	INFO	HTTP	REQUEST_RECEIVED	1476712635191	POST as application/x-www-form-urlencoded at http://127.0.0.1:8080/uws/oimaging/oimaging/1476712634833/phase from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters (PHASE=RUN)
+2016-10-17 15:57:15.192	INFO	HTTP	RESPONSE_SENT	1476712635191	UWS action "Set UWS Parameter" successfully executed.	HTTP-303 to the user ANONYMOUS as application/x-www-form-urlencoded;charset=UTF-8
+2016-10-17 15:57:15.203	INFO	HTTP	REQUEST_RECEIVED	1476712635202	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters ()
+2016-10-17 15:57:15.204	INFO	HTTP	RESPONSE_SENT	1476712635202	UWS action "List Jobs" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 15:58:03.345	INFO	HTTP	REQUEST_RECEIVED	1476712683344	POST as application/x-www-form-urlencoded at http://127.0.0.1:8080/uws/oimaging/oimaging from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters (PHASE=RUN&filename=inputfile&time=5)
+2016-10-17 15:58:03.345	INFO	JOB	CHANGE_PHASE	1476712683344	The job "1476712683344" goes from PENDING to QUEUED
+2016-10-17 15:58:03.345	INFO	JOB	CHANGE_PHASE	1476712683344	The job "1476712683344" goes from QUEUED to EXECUTING
+2016-10-17 15:58:03.350	INFO	JOB	START	1476712683344	Job "1476712683344" started.
+2016-10-17 15:58:03.350	INFO	JOB	CREATED	1476712683344	Job "1476712683344" successfully created and added in the job list "oimaging".
+2016-10-17 15:58:03.350	INFO	THREAD	START	1476712683344	Thread "1476712683344" started.	1476712683344 (thread ID: 109) is RUNNABLE in the group UWS_GROUP where 1 threads are active
+2016-10-17 15:58:03.352	FATAL	JOB	END	1476712683344	The following GRAVE error interrupted the execution of the job 1476712683344.
+Caused by a java.lang.NullPointerException
+	at fr.jmmc.oimaging.uws.OImagingWork.jobWork(OImagingWork.java:58)
+	at uws.job.JobThread.run(JobThread.java:430)
+2016-10-17 15:58:03.352	FATAL	THREAD	END	1476712683344	Thread "1476712683344" ended with an error.	1476712683344 (thread ID: 109) is RUNNABLE in the group UWS_GROUP where 1 threads are active
+2016-10-17 15:58:03.351	INFO	HTTP	RESPONSE_SENT	1476712683344	UWS action "Add Job" successfully executed.	HTTP-303 to the user ANONYMOUS as application/x-www-form-urlencoded;charset=UTF-8
+2016-10-17 15:58:03.358	INFO	JOB	CHANGE_PHASE	1476712683344	The job "1476712683344" goes from EXECUTING to ERROR
+2016-10-17 15:58:03.358	INFO	JOB	END	1476712683344	Job "1476712683344" ended with the status ERROR
+2016-10-17 15:58:03.829	INFO	HTTP	REQUEST_RECEIVED	1476712683829	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging/1476712683344 from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters ()
+2016-10-17 15:58:03.830	INFO	HTTP	RESPONSE_SENT	1476712683829	UWS action "Get Job" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 15:58:03.914	INFO	HTTP	REQUEST_RECEIVED	1476712683914	POST as application/x-www-form-urlencoded at http://127.0.0.1:8080/uws/oimaging/oimaging/1476712683344/phase from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters (PHASE=RUN)
+2016-10-17 15:58:03.915	INFO	HTTP	RESPONSE_SENT	1476712683914	UWS action "Set UWS Parameter" successfully executed.	HTTP-303 to the user ANONYMOUS as application/x-www-form-urlencoded;charset=UTF-8
+2016-10-17 15:58:03.924	INFO	HTTP	REQUEST_RECEIVED	1476712683924	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters ()
+2016-10-17 15:58:03.925	INFO	HTTP	RESPONSE_SENT	1476712683924	UWS action "List Jobs" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 15:58:33.485	INFO	HTTP	REQUEST_RECEIVED	1476712713485	GET as  at http://localhost:8080/uws/oimaging/oimaging from 0:0:0:0:0:0:0:1 using Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0 with parameters ()
+2016-10-17 15:58:33.486	INFO	HTTP	RESPONSE_SENT	1476712713485	UWS action "List Jobs" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 15:58:40.507	INFO	HTTP	REQUEST_RECEIVED	1476712720507	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging/1476712683344 from 127.0.0.1 using Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0 with parameters ()
+2016-10-17 15:58:40.510	INFO	HTTP	RESPONSE_SENT	1476712720507	UWS action "Get Job" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:03:47.296	INFO	HTTP	REQUEST_RECEIVED	1476713027296	POST as application/x-www-form-urlencoded at http://127.0.0.1:8080/uws/oimaging/oimaging from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters (PHASE=RUN&filename=inputfile&time=5)
+2016-10-17 16:03:47.296	INFO	JOB	CHANGE_PHASE	1476713027296	The job "1476713027296" goes from PENDING to QUEUED
+2016-10-17 16:03:47.296	INFO	JOB	CHANGE_PHASE	1476713027296	The job "1476713027296" goes from QUEUED to EXECUTING
+2016-10-17 16:03:47.297	INFO	THREAD	START	1476713027296	Thread "1476713027296" started.	1476713027296 (thread ID: 111) is RUNNABLE in the group UWS_GROUP where 2 threads are active
+2016-10-17 16:03:47.297	FATAL	JOB	END	1476713027296	The following GRAVE error interrupted the execution of the job 1476713027296.
+Caused by a java.lang.NullPointerException
+	at fr.jmmc.oimaging.uws.OImagingWork.jobWork(OImagingWork.java:58)
+	at uws.job.JobThread.run(JobThread.java:430)
+2016-10-17 16:03:47.298	FATAL	THREAD	END	1476713027296	Thread "1476713027296" ended with an error.	1476713027296 (thread ID: 111) is RUNNABLE in the group UWS_GROUP where 2 threads are active
+2016-10-17 16:03:47.299	INFO	JOB	START	1476713027296	Job "1476713027296" started.
+2016-10-17 16:03:47.299	INFO	JOB	CREATED	1476713027296	Job "1476713027296" successfully created and added in the job list "oimaging".
+2016-10-17 16:03:47.299	INFO	HTTP	RESPONSE_SENT	1476713027296	UWS action "Add Job" successfully executed.	HTTP-303 to the user ANONYMOUS as application/x-www-form-urlencoded;charset=UTF-8
+2016-10-17 16:03:47.300	INFO	JOB	CHANGE_PHASE	1476713027296	The job "1476713027296" goes from EXECUTING to ERROR
+2016-10-17 16:03:47.303	INFO	JOB	END	1476713027296	Job "1476713027296" ended with the status ERROR
+2016-10-17 16:03:47.866	INFO	HTTP	REQUEST_RECEIVED	1476713027865	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging/1476713027296 from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters ()
+2016-10-17 16:03:47.866	INFO	HTTP	RESPONSE_SENT	1476713027865	UWS action "Get Job" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:03:47.961	INFO	HTTP	REQUEST_RECEIVED	1476713027960	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters ()
+2016-10-17 16:03:47.961	INFO	HTTP	RESPONSE_SENT	1476713027960	UWS action "List Jobs" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:05:48.504	INFO	UWS	STOP		UWS Service "oimaging" stopped!
+##########################################################################################################################################################
+########################################### LOG STARTS 2016-10-17 16:06:01.151 (file rotation: daily at 00:00) ###########################################
+##########################################################################################################################################################
+2016-10-17 16:06:01.151	INFO	HTTP	REQUEST_RECEIVED	1476713161146	POST as application/x-www-form-urlencoded at http://127.0.0.1:8080/uws/oimaging/oimaging from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters (inputfile=/home/mellag/svn/NetBeans/oimaging/src/test/resources/Bin_Ary--MIRC_H_with_img.fits&PHASE=RUN&time=5)
+2016-10-17 16:06:01.154	INFO	UWS	INIT		UWS successfully initialized.
+2016-10-17 16:06:01.167	INFO	JOB	CHANGE_PHASE	1476713161146	The job "1476713161146" goes from PENDING to QUEUED
+2016-10-17 16:06:01.170	INFO	JOB	CHANGE_PHASE	1476713161146	The job "1476713161146" goes from QUEUED to EXECUTING
+2016-10-17 16:06:01.171	INFO	JOB	START	1476713161146	Job "1476713161146" started.
+2016-10-17 16:06:01.171	INFO	JOB	CREATED	1476713161146	Job "1476713161146" successfully created and added in the job list "oimaging".
+2016-10-17 16:06:01.172	INFO	HTTP	RESPONSE_SENT	1476713161146	UWS action "Add Job" successfully executed.	HTTP-303 to the user ANONYMOUS as application/x-www-form-urlencoded;charset=UTF-8
+2016-10-17 16:06:01.190	INFO	THREAD	START	1476713161146	Thread "1476713161146" started.	1476713161146 (thread ID: 119) is RUNNABLE in the group UWS_GROUP where 1 threads are active
+2016-10-17 16:06:01.192	FATAL	JOB	END	1476713161146	The following GRAVE error interrupted the execution of the job 1476713161146.
+Caused by a java.lang.ClassCastException: java.lang.String cannot be cast to uws.service.request.UploadFile
+	at fr.jmmc.oimaging.uws.OImagingWork.jobWork(OImagingWork.java:55)
+	at uws.job.JobThread.run(JobThread.java:430)
+2016-10-17 16:06:01.192	FATAL	THREAD	END	1476713161146	Thread "1476713161146" ended with an error.	1476713161146 (thread ID: 119) is RUNNABLE in the group UWS_GROUP where 1 threads are active
+2016-10-17 16:06:01.194	INFO	JOB	CHANGE_PHASE	1476713161146	The job "1476713161146" goes from EXECUTING to ERROR
+2016-10-17 16:06:01.194	INFO	JOB	END	1476713161146	Job "1476713161146" ended with the status ERROR
+2016-10-17 16:06:01.666	INFO	HTTP	REQUEST_RECEIVED	1476713161665	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging/1476713161146 from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters ()
+2016-10-17 16:06:01.670	INFO	HTTP	RESPONSE_SENT	1476713161665	UWS action "Get Job" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:06:01.716	INFO	HTTP	REQUEST_RECEIVED	1476713161715	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters ()
+2016-10-17 16:06:01.717	INFO	HTTP	RESPONSE_SENT	1476713161715	UWS action "List Jobs" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:07:00.521	INFO	HTTP	REQUEST_RECEIVED	1476713220521	GET as  at http://localhost:8080/uws/oimaging/oimaging from 0:0:0:0:0:0:0:1 using Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0 with parameters ()
+2016-10-17 16:07:00.522	INFO	HTTP	RESPONSE_SENT	1476713220521	UWS action "List Jobs" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:07:09.415	INFO	HTTP	REQUEST_RECEIVED	1476713229415	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging/1476713161146 from 127.0.0.1 using Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0 with parameters ()
+2016-10-17 16:07:09.416	INFO	HTTP	RESPONSE_SENT	1476713229415	UWS action "Get Job" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:24:59.825	INFO	HTTP	REQUEST_RECEIVED	1476714299806	POST as multipart/form-data at http://127.0.0.1:8080/uws/oimaging/oimaging from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters (inputfile=null)
+2016-10-17 16:24:59.826	INFO	JOB	CREATED	1476714299806	Job "1476714299806" successfully created and added in the job list "oimaging".
+2016-10-17 16:24:59.827	INFO	HTTP	RESPONSE_SENT	1476714299806	UWS action "Add Job" successfully executed.	HTTP-303 to the user ANONYMOUS as multipart/form-data; boundary="PHASE=RUN";charset=UTF-8
+2016-10-17 16:25:00.330	INFO	HTTP	REQUEST_RECEIVED	1476714300330	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging/1476714299806 from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters ()
+2016-10-17 16:25:00.331	INFO	HTTP	RESPONSE_SENT	1476714300330	UWS action "Get Job" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:25:00.399	INFO	HTTP	REQUEST_RECEIVED	1476714300399	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters ()
+2016-10-17 16:25:00.400	INFO	HTTP	RESPONSE_SENT	1476714300399	UWS action "List Jobs" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:25:20.025	INFO	HTTP	REQUEST_RECEIVED	1476714320025	GET as  at http://localhost:8080/uws/oimaging/oimaging from 0:0:0:0:0:0:0:1 using Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0 with parameters ()
+2016-10-17 16:25:20.026	INFO	HTTP	RESPONSE_SENT	1476714320025	UWS action "List Jobs" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:25:22.104	INFO	HTTP	REQUEST_RECEIVED	1476714322104	GET as  at http://localhost:8080/uws/oimaging/oimaging from 0:0:0:0:0:0:0:1 using Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0 with parameters ()
+2016-10-17 16:25:22.105	INFO	HTTP	RESPONSE_SENT	1476714322104	UWS action "List Jobs" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:25:23.077	INFO	HTTP	REQUEST_RECEIVED	1476714323077	GET as  at http://localhost:8080/uws/oimaging/oimaging from 0:0:0:0:0:0:0:1 using Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0 with parameters ()
+2016-10-17 16:25:23.078	INFO	HTTP	RESPONSE_SENT	1476714323077	UWS action "List Jobs" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:25:24.025	INFO	HTTP	REQUEST_RECEIVED	1476714324025	GET as  at http://localhost:8080/uws/oimaging/oimaging from 0:0:0:0:0:0:0:1 using Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0 with parameters ()
+2016-10-17 16:25:24.026	INFO	HTTP	RESPONSE_SENT	1476714324025	UWS action "List Jobs" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:25:31.388	INFO	HTTP	REQUEST_RECEIVED	1476714331388	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging/1476714299806 from 127.0.0.1 using Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0 with parameters ()
+2016-10-17 16:25:31.389	INFO	HTTP	RESPONSE_SENT	1476714331388	UWS action "Get Job" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:26:17.323	INFO	HTTP	REQUEST_RECEIVED	1476714377311	POST as multipart/form-data at http://127.0.0.1:8080/uws/oimaging/oimaging from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters (inputfile=null&PHASE=RUN)
+2016-10-17 16:26:17.324	INFO	JOB	CHANGE_PHASE	1476714377311	The job "1476714377311" goes from PENDING to QUEUED
+2016-10-17 16:26:17.324	INFO	JOB	CHANGE_PHASE	1476714377311	The job "1476714377311" goes from QUEUED to EXECUTING
+2016-10-17 16:26:17.324	INFO	JOB	START	1476714377311	Job "1476714377311" started.
+2016-10-17 16:26:17.324	INFO	THREAD	START	1476714377311	Thread "1476714377311" started.	1476714377311 (thread ID: 129) is RUNNABLE in the group UWS_GROUP where 2 threads are active
+2016-10-17 16:26:17.326	INFO	JOB	CREATED	1476714377311	Job "1476714377311" successfully created and added in the job list "oimaging".
+2016-10-17 16:26:17.327	INFO	HTTP	RESPONSE_SENT	1476714377311	UWS action "Add Job" successfully executed.	HTTP-303 to the user ANONYMOUS as multipart/form-data; boundary="time=20";charset=UTF-8
+2016-10-17 16:26:17.764	INFO	HTTP	REQUEST_RECEIVED	1476714377764	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging/1476714377311 from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters ()
+2016-10-17 16:26:17.765	INFO	HTTP	RESPONSE_SENT	1476714377764	UWS action "Get Job" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:26:17.836	INFO	HTTP	REQUEST_RECEIVED	1476714377836	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters ()
+2016-10-17 16:26:17.837	INFO	HTTP	RESPONSE_SENT	1476714377836	UWS action "List Jobs" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:27:58.682	INFO	JOB	CHANGE_PHASE	1476714377311	The job "1476714377311" goes from EXECUTING to COMPLETED
+2016-10-17 16:27:58.683	INFO	JOB	END	1476714377311	Job "1476714377311" ended with the status COMPLETED
+2016-10-17 16:27:58.683	INFO	THREAD	END	1476714377311	Thread "1476714377311" successfully ended.	1476714377311 (thread ID: 129) is RUNNABLE in the group UWS_GROUP where 1 threads are active
+2016-10-17 16:45:51.651	INFO	HTTP	REQUEST_RECEIVED	1476715551644	POST as multipart/form-data at http://127.0.0.1:8080/uws/oimaging/oimaging from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters (inputfile=null&PHASE=RUN)
+2016-10-17 16:45:51.652	INFO	JOB	CHANGE_PHASE	1476715551644	The job "1476715551644" goes from PENDING to QUEUED
+2016-10-17 16:45:51.652	INFO	JOB	CHANGE_PHASE	1476715551644	The job "1476715551644" goes from QUEUED to EXECUTING
+2016-10-17 16:45:51.652	INFO	THREAD	START	1476715551644	Thread "1476715551644" started.	1476715551644 (thread ID: 132) is RUNNABLE in the group UWS_GROUP where 2 threads are active
+2016-10-17 16:45:51.652	INFO	JOB	START	1476715551644	Job "1476715551644" started.
+2016-10-17 16:45:51.653	INFO	JOB	CREATED	1476715551644	Job "1476715551644" successfully created and added in the job list "oimaging".
+2016-10-17 16:45:51.653	INFO	HTTP	RESPONSE_SENT	1476715551644	UWS action "Add Job" successfully executed.	HTTP-303 to the user ANONYMOUS as multipart/form-data; boundary="time=20";charset=UTF-8
+2016-10-17 16:45:52.231	INFO	HTTP	REQUEST_RECEIVED	1476715552231	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging/1476715551644 from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters ()
+2016-10-17 16:45:52.232	INFO	HTTP	RESPONSE_SENT	1476715552231	UWS action "Get Job" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:45:52.312	INFO	HTTP	REQUEST_RECEIVED	1476715552312	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging from 127.0.0.1 using Restlet-Framework/2.3.7 with parameters ()
+2016-10-17 16:45:52.313	INFO	HTTP	RESPONSE_SENT	1476715552312	UWS action "List Jobs" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:46:04.722	INFO	HTTP	REQUEST_RECEIVED	1476715564722	GET as  at http://localhost:8080/uws/oimaging/oimaging from 0:0:0:0:0:0:0:1 using Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0 with parameters ()
+2016-10-17 16:46:04.723	INFO	HTTP	RESPONSE_SENT	1476715564722	UWS action "List Jobs" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:46:12.865	INFO	HTTP	REQUEST_RECEIVED	1476715572865	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging/1476715551644 from 127.0.0.1 using Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0 with parameters ()
+2016-10-17 16:46:12.865	INFO	HTTP	RESPONSE_SENT	1476715572865	UWS action "Get Job" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:46:16.468	INFO	HTTP	REQUEST_RECEIVED	1476715576468	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging/1476715551644 from 127.0.0.1 using Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0 with parameters ()
+2016-10-17 16:46:16.469	INFO	HTTP	RESPONSE_SENT	1476715576468	UWS action "Get Job" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:46:17.886	INFO	HTTP	REQUEST_RECEIVED	1476715577886	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging/1476715551644 from 127.0.0.1 using Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0 with parameters ()
+2016-10-17 16:46:17.887	INFO	HTTP	RESPONSE_SENT	1476715577886	UWS action "Get Job" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:46:18.844	INFO	HTTP	REQUEST_RECEIVED	1476715578844	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging/1476715551644 from 127.0.0.1 using Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0 with parameters ()
+2016-10-17 16:46:18.845	INFO	HTTP	RESPONSE_SENT	1476715578844	UWS action "Get Job" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:46:19.825	INFO	HTTP	REQUEST_RECEIVED	1476715579825	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging/1476715551644 from 127.0.0.1 using Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0 with parameters ()
+2016-10-17 16:46:19.826	INFO	HTTP	RESPONSE_SENT	1476715579825	UWS action "Get Job" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:46:20.825	INFO	HTTP	REQUEST_RECEIVED	1476715580825	GET as  at http://127.0.0.1:8080/uws/oimaging/oimaging/1476715551644 from 127.0.0.1 using Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0 with parameters ()
+2016-10-17 16:46:20.826	INFO	HTTP	RESPONSE_SENT	1476715580825	UWS action "Get Job" successfully executed.	HTTP-200 to the user ANONYMOUS as text/xml;charset=UTF-8
+2016-10-17 16:47:32.863	INFO	JOB	CHANGE_PHASE	1476715551644	The job "1476715551644" goes from EXECUTING to COMPLETED
+2016-10-17 16:47:32.864	INFO	JOB	END	1476715551644	Job "1476715551644" ended with the status COMPLETED
+2016-10-17 16:47:32.864	INFO	THREAD	END	1476715551644	Thread "1476715551644" successfully ended.	1476715551644 (thread ID: 132) is RUNNABLE in the group UWS_GROUP where 1 threads are active
+2016-10-17 17:16:33.692	INFO	UWS	STOP		UWS Service "oimaging" stopped!

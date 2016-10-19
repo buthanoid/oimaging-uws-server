@@ -1,0 +1,10 @@
+Date: Mon Oct 17 15:54:06 CEST 2016
+Job: 1476712446117
+Type: fatal
+Message: java.lang.NullPointerException
+Stack Trace:
+uws.UWSException: java.lang.NullPointerException
+	at uws.job.JobThread.run(JobThread.java:470)
+Caused by: java.lang.NullPointerException: null
+	at fr.jmmc.oimaging.uws.OImagingWork.jobWork(OImagingWork.java:58)
+	at uws.job.JobThread.run(JobThread.java:430)
