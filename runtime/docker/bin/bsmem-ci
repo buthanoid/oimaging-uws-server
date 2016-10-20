@@ -1,0 +1,35 @@
+#!/bin/bash
+# Provided by JMMC
+# Oct 2016 : GM - creation
+# Build a docker command line with full qualified filename arguments
+
+
+# Do not leave children jobs running if the shell has been cancelled
+cleanup_trap(){
+  CHILDREN_PIDS=$(jobs -p)
+  if [ -n "$CHILDREN_PIDS" ]
+  then
+    echo -e "SHELL cancelled"
+    # we may try to send onlty TERM before a pause and a last loop with KILL signal ?
+    kill -9 $CHILDREN_PIDS
+  fi
+}
+trap cleanup_trap EXIT
+
+
+cmd="$(basename $0)"
+for a in $*
+do
+  # handle options as is but provide full qualified path as argument and prepare associated volumes
+  if [ "${a#-}" = "${a}" ]
+  then
+    b="$(readlink -f $a)"
+    d="$(dirname $b)"
+    vols=$vols" -v $d:$d"
+    args=$args" $b"
+  else
+    args=$args" $a"
+  fi
+done
+
+docker run $vols oiservices $cmd $args
