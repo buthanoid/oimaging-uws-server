@@ -24,6 +24,7 @@ import uws.service.UWSService;
 import uws.service.UWSUrl;
 import uws.service.actions.ShowHomePage;
 import uws.service.file.LocalUWSFileManager;
+import uws.service.request.UploadFile;
 
 public class OImagingUwsService extends HttpServlet {
 
@@ -40,43 +41,36 @@ public class OImagingUwsService extends HttpServlet {
      */
     private static class MyUWSFactory extends AbstractUWSFactory {
 
+        private static final String INPUTFILE = "inputfile";
+
         public MyUWSFactory() {
             super();
             _logger.warn("OImagingUwsService initialisation");
 
-            // TODO replace time by input file
-            addExpectedAdditionalParameter("time");
-            setInputParamController("time", new InputParamController() {
+            addExpectedAdditionalParameter(INPUTFILE);
+            setInputParamController(INPUTFILE, new InputParamController() {
+
                 @Override
                 public Object getDefault() {
-                    return 10;
+                    // We could put Mickey in a future version
+                    return null;
                 }
 
                 @Override
                 public Object check(Object val) throws UWSException {
-                    int time;
-                    if (val instanceof Integer) {
-                        time = ((Integer) val).intValue();
-                    } else if (val instanceof String) {
-                        try {
-                            time = Integer.parseInt((String) val);
-                        } catch (NumberFormatException nfe) {
-                            throw new UWSException(UWSException.BAD_REQUEST, nfe, "Wrong \"time\" syntax: a positive integer is expected!", ErrorType.FATAL);
-                        }
-                    } else {
-                        throw new UWSException(UWSException.BAD_REQUEST, "Wrong \"time\" type: a positive integer is expected!");
+                    UploadFile file;
+                    if (val instanceof UploadFile) {
+                        file = (UploadFile) val;
+                        // TODO check content ?
+                    } else { // val == null or others
+                        throw new UWSException(UWSException.BAD_REQUEST, "Wrong \"" + INPUTFILE + "\" param. An OIFits file is expected!", ErrorType.FATAL);
                     }
-
-                    if (time <= 0) {
-                        throw new UWSException("Wrong \"time\" value: \"" + time + "\"! A positive integer is expected.");
-                    } else {
-                        return time;
-                    }
+                    return file;
                 }
 
                 @Override
                 public boolean allowModification() {
-                    return true;
+                    return false;
                 }
             });
         }
@@ -132,13 +126,10 @@ public class OImagingUwsService extends HttpServlet {
             // Create the UWS service:
             service = new UWSService(new MyUWSFactory(), new LocalUWSFileManager(new File(config.getServletContext().getRealPath("/"))));
             /* Note:
-			 * Service files (like log and results) will be stored in a new directory called "ServiceFiles"
-			 * inside the deployment directory of the webservice. */
+	     * Service files (like log and results) will be stored in a new directory called "ServiceFiles"
+             * inside the deployment directory of the webservice. */
             // Change the default home page:
             service.replaceUWSAction(new MyHomePage(service));
-
-            // Create and add at least one job list:
-            service.addJobList(new JobList("timers"));
 
             JobList jl = new JobList("oimaging");
             jl.setExecutionManager(new QueuedExecutionManager(service.getLogger(), 3));	// queue limited at 3 running jobs
