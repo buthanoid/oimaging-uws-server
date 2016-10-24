@@ -13,5 +13,8 @@ all: Dockerfile OImaging-uws-TRUNK.war
 run:
 	docker run -it -p 8888:8080 oiservices 
 
+save:
+	docker save -o oiservices.tar oiservices 
+
 exec-bsmem-help:
 	docker run -it oiservices bsmem -help
