@@ -41,14 +41,13 @@ public class OImagingUwsService extends HttpServlet {
      */
     private static class MyUWSFactory extends AbstractUWSFactory {
 
-        private static final String INPUTFILE = "inputfile";
 
         public MyUWSFactory() {
             super();
             _logger.warn("OImagingUwsService initialisation");
 
-            addExpectedAdditionalParameter(INPUTFILE);
-            setInputParamController(INPUTFILE, new InputParamController() {
+            addExpectedAdditionalParameter(OImagingWork.INPUTFILE);
+            setInputParamController(OImagingWork.INPUTFILE, new InputParamController() {
 
                 @Override
                 public Object getDefault() {
@@ -62,8 +61,12 @@ public class OImagingUwsService extends HttpServlet {
                     if (val instanceof UploadFile) {
                         file = (UploadFile) val;
                         // TODO check content ?
-                    } else { // val == null or others
-                        throw new UWSException(UWSException.BAD_REQUEST, "Wrong \"" + INPUTFILE + "\" param. An OIFits file is expected!", ErrorType.FATAL);
+                    } else {
+                        // WARNING : this is a dead code area, we never enter this branch :(
+                        // val == null or others
+                        _logger.error("inputfile is null");
+                        throw new UWSException(UWSException.BAD_REQUEST, "Wrong \"" + OImagingWork.INPUTFILE + "\" param. An OIFits file is expected!", ErrorType.FATAL);
+
                     }
                     return file;
                 }

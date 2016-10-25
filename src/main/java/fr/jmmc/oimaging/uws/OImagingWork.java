@@ -29,6 +29,7 @@ public class OImagingWork extends JobThread {
     public final static String USER_NAME = "JMMC";
     /** task identifier for LocalService */
     public final static String TASK_NAME = "LocalRunner";
+    public static final String INPUTFILE = "inputfile";
 
     public OImagingWork(UWSJob j) throws UWSException {
         super(j);
@@ -42,6 +43,12 @@ public class OImagingWork extends JobThread {
             throw new InterruptedException();
         }
 
+        // Check input param
+        if (getJob().getAdditionalParameterValue(INPUTFILE) == null) {
+            _logger.error("inputfile is null");
+            throw new UWSException(UWSException.BAD_REQUEST, "Wrong \"" + INPUTFILE + "\" param. An OIFits file is expected!", ErrorType.FATAL);
+        }
+
         File outputFile = null;
         File logFile = null;
         try {
@@ -52,7 +59,7 @@ public class OImagingWork extends JobThread {
             Result logResult = createResult("logfile");
 
             // Get user's input
-            UploadFile inputFile = (UploadFile) getJob().getAdditionalParameterValue("inputfile");
+            UploadFile inputFile = (UploadFile) getJob().getAdditionalParameterValue(INPUTFILE);
             // and fakes other files using inputfile name
             // Warning : we use the path from getLocation()
 
