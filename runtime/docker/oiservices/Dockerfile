@@ -17,7 +17,7 @@ RUN apt-get install -y cmake gfortran gcc pgplot5 xterm libcfitsio-dev libfftw3-
 RUN cd /opt/bsmem*/build ; cmake .. -Wno-dev ; make ; make install; rm -rf /opt/bsmem*
 
 #ADD tomcat-users.xml /usr/local/tomcat/conf/
-ADD OImaging-uws-TRUNK.war /usr/local/tomcat/webapps/
+ADD OImaging-uws-TRUNK.war /usr/local/tomcat/webapps/uws.war
 
 
 EXPOSE 8080

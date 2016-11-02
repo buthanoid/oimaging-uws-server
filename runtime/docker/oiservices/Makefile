@@ -17,4 +17,4 @@ save:
 	docker save -o oiservices.tar oiservices 
 
 exec-bsmem-help:
-	docker run -it oiservices bsmem -help
+	docker run -it oiservices bsmem -h
