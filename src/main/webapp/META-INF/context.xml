@@ -1,2 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+Note: context path is ignored when autoDeploy=true (default)
+see https://tomcat.apache.org/tomcat-8.0-doc/config/context.html
+
+deployed at /<war-name>/
+for example: /OImaging-uws/
+-->
 <Context path="/uws"/>
