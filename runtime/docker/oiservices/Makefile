@@ -7,8 +7,11 @@
 #   or run a binary inside the container 
 #
 #
-all: Dockerfile OImaging-uws-TRUNK.war
+all: Dockerfile OImaging-uws.war 
 	docker build -t oiservices .
+
+OImaging-uws.war: ../../../target/OImaging-uws.war
+	cp $? .
 
 run:
 	docker run -it -p 8888:8080 oiservices 
