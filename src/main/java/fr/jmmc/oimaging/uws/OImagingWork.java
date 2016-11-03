@@ -67,7 +67,9 @@ public class OImagingWork extends JobThread {
             outputFile = new File(inputFilename + ".out");
             logFile = new File(inputFilename + ".log");
 
-            exec("bsmem-ci", inputFilename, outputFile.getAbsolutePath(), logFile.getAbsolutePath(), EmptyJobListener.INSTANCE);
+            int code = exec("bsmem-ci", inputFilename, outputFile.getAbsolutePath(), logFile.getAbsolutePath(), EmptyJobListener.INSTANCE);
+
+            _logger.error("exec returned: {}", code);
 
             if (outputFile.exists()) {
                 FileUtils.saveFile(outputFile, getResultOutput(outputResult));
@@ -127,6 +129,11 @@ public class OImagingWork extends JobThread {
         final String[] cmd = new String[]{appName, inputFilename, outputFilename};
         LocalLauncher.prepareChildJob(jobContext, TASK_NAME, cmd);
 
+        // If the task has been canceled/interrupted, do not fork process:
+        if (Thread.currentThread().isInterrupted()) {
+            return 1;
+        }
+
         // Puts the job in the job queue (can throw IllegalStateException if job not queued)
         LocalLauncher.startJob(jobContext, jobListener);
 
@@ -135,7 +142,9 @@ public class OImagingWork extends JobThread {
             // Wait for task to be done :
             jobContext.getFuture().get();
         } catch (InterruptedException ie) {
-            _logger.debug("waitFor: interrupted", ie);
+            _logger.debug("waitFor: interrupted, killing {}", jobContext.getId());
+
+            LocalLauncher.cancelOrKillJob(jobContext.getId());
         } catch (ExecutionException ee) {
             _logger.info("waitFor: execution error", ee);
         }
