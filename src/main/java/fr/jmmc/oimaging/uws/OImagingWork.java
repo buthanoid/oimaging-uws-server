@@ -110,7 +110,7 @@ public class OImagingWork extends JobThread {
      * @return status code of the executed command
      * @throws IllegalStateException if the job can not be submitted to the job queue
      */
-    public static int exec(final String appName, final String inputFilename, final String outputFilename, final String logFilename, final JobListener jobListener) throws IllegalStateException {
+    public int exec(final String appName, final String inputFilename, final String outputFilename, final String logFilename, final JobListener jobListener) throws IllegalStateException {
         if (StringUtils.isEmpty(appName)) {
             throw new IllegalArgumentException("empty application name !");
         }
@@ -128,8 +128,8 @@ public class OImagingWork extends JobThread {
         }
 
         // create the execution context with log file:
-        // TODO: fix temporary location
-        final RootContext jobContext = LocalLauncher.prepareMainJob(APP_NAME, USER_NAME, FileUtils.getTempDirPath(), logFilename);
+        final String workDir = FileUtils.getTempDirPath() + getJob().getJobId();
+        final RootContext jobContext = LocalLauncher.prepareMainJob(APP_NAME, USER_NAME, workDir, logFilename);
 
         final String[] cmd = new String[]{appName, inputFilename, outputFilename};
         final RunContext runCtx = LocalLauncher.prepareChildJob(jobContext, TASK_NAME, cmd);
