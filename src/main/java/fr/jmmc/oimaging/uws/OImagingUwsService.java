@@ -41,7 +41,6 @@ public class OImagingUwsService extends HttpServlet {
      */
     private static class MyUWSFactory extends AbstractUWSFactory {
 
-
         public MyUWSFactory() {
             super();
             _logger.warn("OImagingUwsService initialisation");
@@ -123,8 +122,6 @@ public class OImagingUwsService extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         try {
-            LocalLauncher.startUp();
-
             // TODO : bootstrap slf4j logging system
             // Create the UWS service:
             service = new UWSService(new MyUWSFactory(), new LocalUWSFileManager(new File(config.getServletContext().getRealPath("/"))));
@@ -141,6 +138,8 @@ public class OImagingUwsService extends HttpServlet {
         } catch (UWSException ue) {
             throw new ServletException("Can not initialize the UWS service!", ue);
         }
+
+        LocalLauncher.startUp();
     }
 
     @Override
