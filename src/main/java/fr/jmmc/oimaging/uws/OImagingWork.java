@@ -6,7 +6,9 @@ import fr.jmmc.jmcs.util.runner.EmptyJobListener;
 import fr.jmmc.jmcs.util.runner.JobListener;
 import fr.jmmc.jmcs.util.runner.LocalLauncher;
 import fr.jmmc.jmcs.util.runner.RootContext;
+import fr.jmmc.jmcs.util.runner.RunContext;
 import fr.jmmc.jmcs.util.runner.RunState;
+import fr.jmmc.jmcs.util.runner.process.ProcessContext;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -67,10 +69,12 @@ public class OImagingWork extends JobThread {
             outputFile = new File(inputFilename + ".out");
             logFile = new File(inputFilename + ".log");
 
-            int code = exec("bsmem-ci", inputFilename, outputFile.getAbsolutePath(), logFile.getAbsolutePath(), EmptyJobListener.INSTANCE);
+            final int statusCode = exec("bsmem-ci", inputFilename, outputFile.getAbsolutePath(), logFile.getAbsolutePath(), EmptyJobListener.INSTANCE);
 
-            _logger.error("exec returned: {}", code);
+            _logger.error("exec returned: {}", statusCode);
 
+            // TODO: if error, maybe use ErrorSummary but there is no way to return log file ?
+            // setError(new ErrorSummary(String msg, ErrorType errorType, String detailedMsgURI));
             if (outputFile.exists()) {
                 FileUtils.saveFile(outputFile, getResultOutput(outputResult));
                 publishResult(outputResult);
@@ -101,11 +105,12 @@ public class OImagingWork extends JobThread {
      * @param appName
      * @param inputFilename
      * @param outputFilename
+     * @param logFilename
      * @param jobListener job event listener (not null)
+     * @return status code of the executed command
      * @throws IllegalStateException if the job can not be submitted to the job queue
      */
     public static int exec(final String appName, final String inputFilename, final String outputFilename, final String logFilename, final JobListener jobListener) throws IllegalStateException {
-
         if (StringUtils.isEmpty(appName)) {
             throw new IllegalArgumentException("empty application name !");
         }
@@ -127,7 +132,7 @@ public class OImagingWork extends JobThread {
         final RootContext jobContext = LocalLauncher.prepareMainJob(APP_NAME, USER_NAME, FileUtils.getTempDirPath(), logFilename);
 
         final String[] cmd = new String[]{appName, inputFilename, outputFilename};
-        LocalLauncher.prepareChildJob(jobContext, TASK_NAME, cmd);
+        final RunContext runCtx = LocalLauncher.prepareChildJob(jobContext, TASK_NAME, cmd);
 
         // If the task has been canceled/interrupted, do not fork process:
         if (Thread.currentThread().isInterrupted()) {
@@ -149,8 +154,14 @@ public class OImagingWork extends JobThread {
             _logger.info("waitFor: execution error", ee);
         }
 
-        // TODO: retrieve command execution status code
-        return jobContext.getState() == RunState.STATE_FINISHED_OK ? 0 : 1;
+        // retrieve command execution status code
+        if (jobContext.getState() == RunState.STATE_FINISHED_OK) {
+            return 0;
+        }
+        if (runCtx instanceof ProcessContext) {
+            return ((ProcessContext) runCtx).getExitCode();
+        }
+        return -1;
     }
 
 }
