@@ -16,6 +16,9 @@ OImaging-uws.war: ../../../target/OImaging-uws.war
 run:
 	docker run -it -p 8888:8080 oiservices 
 
+shell:
+	docker run -it oiservices /bin/bash
+
 save:
 	docker save -o oiservices.tar oiservices 
 
