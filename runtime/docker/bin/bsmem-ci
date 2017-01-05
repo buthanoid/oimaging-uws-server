@@ -26,10 +26,17 @@ do
     b="$(readlink -f $a)"
     d="$(dirname $b)"
     vols=$vols" -v $d:$d"
-    args=$args" $b"
+    args=$args"$b "
   else
-    args=$args" $a"
+    args=$args"$a "
   fi
 done
 
 docker run $vols oiservices $cmd $args
+
+# Guess that 2 args always match input and output
+if [ $# -eq 2 ]
+then
+  # Fix permissions (else output may be own by root)
+  docker run $vols oiservices chown --reference=$args
+fi
