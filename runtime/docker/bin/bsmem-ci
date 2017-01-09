@@ -33,10 +33,19 @@ do
 done
 
 docker run $vols oiservices $cmd $args
+RET_CODE=$?
 
 # Guess that 2 args always match input and output
 if [ $# -eq 2 ]
 then
-  # Fix permissions (else output may be own by root)
-  docker run $vols oiservices chown --reference=$args
+  FILES=( $args )
+  INPUT=${FILES[0]}
+  OUTPUT=${FILES[1]}
+  if [ -e "${OUTPUT}" ]
+  then
+    # Fix permissions (else output may be own by root)
+    docker run $vols oiservices chown --reference=$args
+  fi
 fi
+
+exit $RET_CODE
