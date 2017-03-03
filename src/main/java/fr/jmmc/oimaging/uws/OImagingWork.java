@@ -32,6 +32,7 @@ public class OImagingWork extends JobThread {
     /** task identifier for LocalService */
     public final static String TASK_NAME = "LocalRunner";
     public static final String INPUTFILE = "inputfile";
+    public static final String SOFTWARE = "software";
 
     public OImagingWork(UWSJob j) throws UWSException {
         super(j);
@@ -45,9 +46,15 @@ public class OImagingWork extends JobThread {
             throw new InterruptedException();
         }
 
+        // Check software param
+        if (getJob().getAdditionalParameterValue(SOFTWARE) == null) {
+            _logger.error(SOFTWARE + " is null");
+            throw new UWSException(UWSException.BAD_REQUEST, "Wrong \"" + SOFTWARE + "\" param. An program name is expected!", ErrorType.FATAL);
+        }
+
         // Check input param
         if (getJob().getAdditionalParameterValue(INPUTFILE) == null) {
-            _logger.error("inputfile is null");
+            _logger.error(INPUTFILE + "is null");
             throw new UWSException(UWSException.BAD_REQUEST, "Wrong \"" + INPUTFILE + "\" param. An OIFits file is expected!", ErrorType.FATAL);
         }
 
@@ -57,19 +64,21 @@ public class OImagingWork extends JobThread {
             _logger.error("jobWork launched");
             _logger.error("params: " + getJob().getAdditionalParameters());
             // prepare the result:
-            Result outputResult = createResult("outputfile");
-            Result logResult = createResult("logfile");
+            final Result outputResult = createResult("outputfile");
+            final Result logResult = createResult("logfile");
 
             // Get user's input
-            UploadFile inputFile = (UploadFile) getJob().getAdditionalParameterValue(INPUTFILE);
+            final UploadFile inputFile = (UploadFile) getJob().getAdditionalParameterValue(INPUTFILE);
             // and fakes other files using inputfile name
             // Warning : we use the path from getLocation()
 
-            String inputFilename = inputFile.getLocation().replaceFirst("file:", "");
+            final String inputFilename = inputFile.getLocation().replaceFirst("file:", "");
             outputFile = new File(inputFilename + ".out");
             logFile = new File(inputFilename + ".log");
 
-            final int statusCode = exec("bsmem-ci", inputFilename, outputFile.getAbsolutePath(), logFile.getAbsolutePath(), EmptyJobListener.INSTANCE);
+            final String software = (String) getJob().getAdditionalParameterValue(SOFTWARE);
+
+            final int statusCode = exec(software, inputFilename, outputFile.getAbsolutePath(), logFile.getAbsolutePath(), EmptyJobListener.INSTANCE);
 
             _logger.error("exec returned: {}", statusCode);
 
@@ -126,11 +135,11 @@ public class OImagingWork extends JobThread {
         if (jobListener == null) {
             throw new IllegalArgumentException("undefined job listener !");
         }
-
+        // TODO reuse FileManager of Laurent's ivoa.runner
         // create the execution context with log file:
-        final String workDir = FileUtils.getTempDirPath() + getJob().getJobId();
-        final RootContext jobContext = LocalLauncher.prepareMainJob(APP_NAME, USER_NAME, workDir, logFilename);
-
+        File workDir = new File(FileUtils.getTempDirPath() + getJob().getJobId());
+        workDir.mkdirs();
+        final RootContext jobContext = LocalLauncher.prepareMainJob(APP_NAME, USER_NAME, workDir.getAbsolutePath(), logFilename);
         final String[] cmd = new String[]{appName, inputFilename, outputFilename};
         final RunContext runCtx = LocalLauncher.prepareChildJob(jobContext, TASK_NAME, cmd);
 
