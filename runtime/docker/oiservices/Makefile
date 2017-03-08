@@ -8,7 +8,7 @@
 #
 #
 NAME=oiservices
-VERSION=1.1
+VERSION=1.2
 TAR_FILE=$(NAME)-$(VERSION).tar
 
 all:	build
