@@ -17,7 +17,7 @@ build:	Dockerfile OImaging-uws.war
 	docker build -t $(NAME):$(VERSION) --rm .
 
 tag_latest:
-	docker tag -f $(NAME):$(VERSION) $(NAME):latest
+	docker tag $(NAME):$(VERSION) $(NAME):latest
 
 OImaging-uws.war: ../../../target/OImaging-uws.war
 	cp $? .
