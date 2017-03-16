@@ -2,8 +2,9 @@
 # Building requires :
 #  - bsmem sources
 #  - OImaging-uws war
+# look at the Dockerfile for main building operations
 #
-# oiservices can run the service without args
+# oiservices can run the service (UWS server) without args
 #   or run a binary inside the container 
 #
 #
@@ -20,10 +21,8 @@ tag_latest:
 	docker tag $(NAME):$(VERSION) $(NAME):latest
 
 OImaging-uws.war: ../../../target/OImaging-uws.war
+	cd ../../.. ; mvn clean install ; cd -
 	cp $? .
-
-clean:
-	rm -rf OImaging-uws.war $(TAR_FILE)
 
 run:
 	docker run -it -p 8888:8080 $(NAME):$(VERSION) 
@@ -43,3 +42,6 @@ exec-bsmem-ci-help:
 
 exec-wisard-ci-help:
 	docker run -it $(NAME):$(VERSION) wisard-ci -h
+
+clean:
+	rm -rf OImaging-uws.war $(TAR_FILE)
