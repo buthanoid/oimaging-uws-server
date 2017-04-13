@@ -9,7 +9,7 @@
 #
 #
 NAME=oiservices
-VERSION=1.2
+VERSION=1.3
 TAR_FILE=$(NAME)-$(VERSION).tar
 
 all:	build
@@ -21,8 +21,10 @@ tag_latest:
 	docker tag $(NAME):$(VERSION) $(NAME):latest
 
 OImaging-uws.war: ../../../target/OImaging-uws.war
-	cd ../../.. ; mvn clean install ; cd -
 	cp $? .
+
+../../../target/OImaging-uws.war:
+	cd ../../.. ; mvn clean install ; cd -
 
 run:
 	docker run -it -p 8888:8080 $(NAME):$(VERSION) 
@@ -30,11 +32,11 @@ run:
 shell:
 	docker run -it $(NAME):$(VERSION) /bin/bash
 
-save:
+$(TAR_FILE):
 	docker save -o $(TAR_FILE) $(NAME):$(VERSION) 
 
 # This image snapshot is used in the ansible jmmc-oimaging-uws role (look into vars so that the versions match)
-publish: save
+publish: $(TAR_FILE)
 	scp $(TAR_FILE) jmmc.fr:public_html/docker/
 
 exec-bsmem-ci-help:
