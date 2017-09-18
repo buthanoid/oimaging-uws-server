@@ -7,9 +7,12 @@
 # oiservices can run the service (UWS server) without args
 #   or run a binary inside the container 
 #
+# History 1.4 : 
+#   - update to bsmem 2.0.6
+#   - update to wisard-ci V3_0_1Beta6
 #
 NAME=oiservices
-VERSION=1.3
+VERSION=1.4
 TAR_FILE=$(NAME)-$(VERSION).tar
 
 all:	build

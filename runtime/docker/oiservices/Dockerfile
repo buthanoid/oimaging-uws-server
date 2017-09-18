@@ -15,8 +15,8 @@ RUN apt-get update -y ; apt-get install -y git cmake g++
 RUN apt-get update -y ; apt-get install -y git cmake gcc g++ libcfitsio-dev libglib2.0-dev
 RUN cd /opt ; git clone https://github.com/jsy1001/oifitslib.git ; cd oifitslib ; git checkout v2.2.1 
 RUN cd /opt/oifitslib/build; cmake ..; make; make install
-RUN echo "install BSMem"
-ADD "bsmem-v2.0.5-*.tar.gz" /opt/
+RUN echo "install BSMem (using .tar.gz from https://gitlab.com/jsy1001/bsmem/tags)"
+ADD "bsmem-v2.0.6-*.tar.gz" /opt/
 RUN apt-get update -y ; apt-get install -y cmake gfortran gcc pgplot5 xterm libcfitsio-dev libfftw3-dev libnfft3-dev libglib2.0-dev
 RUN cd /opt/bsmem*/build ; cmake .. -Wno-dev ; make ; make install; rm -rf /opt/bsmem*
 
@@ -26,7 +26,7 @@ RUN cd /opt/bsmem*/build ; cmake .. -Wno-dev ; make ; make install; rm -rf /opt/
 #  WISARD-CI
 #
 
-ENV WISARD_CI_VERSION WISARD-CI_V3_0_1Beta5
+ENV WISARD_CI_VERSION WISARD-CI_V3_0_1Beta6
 
 RUN apt-get update -y ; apt-get install -y subversion
 
@@ -49,5 +49,7 @@ RUN echo '!PATH=!PATH+":/usr/share/gnudatalanguage/astrolib"' > /opt/wisard-ci/g
 #ADD tomcat-users.xml /usr/local/tomcat/conf/
 # But next line provide a war that is autodeployed on startup CONTEXT_PATH is not honored : app dir is the basename of the war (OImaging-uws here).
 ADD OImaging-uws.war /usr/local/tomcat/webapps/
+
+RUN apt-get clean
 
 EXPOSE 8080
