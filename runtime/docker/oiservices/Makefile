@@ -9,7 +9,7 @@
 #
 # History 1.4 : 
 #   - update to bsmem 2.0.6
-#   - update to wisard-ci V3_0_1Beta6
+#   - update to wisard-ci V3_0_1Beta8
 #
 NAME=oiservices
 VERSION=1.4
