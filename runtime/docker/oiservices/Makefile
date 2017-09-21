@@ -10,9 +10,11 @@
 # History 1.4 : 
 #   - update to bsmem 2.0.6
 #   - update to wisard-ci V3_0_1Beta8
+# History 1.5 : 
+#   - update to wisard-ci V3_0_2Beta1
 #
 NAME=oiservices
-VERSION=1.4
+VERSION=1.5
 TAR_FILE=$(NAME)-$(VERSION).tar
 
 all:	build

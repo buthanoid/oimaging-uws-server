@@ -26,7 +26,7 @@ RUN cd /opt/bsmem*/build ; cmake .. -Wno-dev ; make ; make install; rm -rf /opt/
 #  WISARD-CI
 #
 
-ENV WISARD_CI_VERSION WISARD-CI_V3_0_1Beta8
+ENV WISARD_CI_VERSION WISARD-CI_V3_0_2Beta1
 
 RUN apt-get update -y ; apt-get install -y subversion
 
