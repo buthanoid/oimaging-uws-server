@@ -132,7 +132,7 @@ public class OImagingUwsService extends HttpServlet {
             service.replaceUWSAction(new MyHomePage(service));
 
             JobList jl = new JobList("oimaging");
-            jl.setExecutionManager(new QueuedExecutionManager(service.getLogger(), 3));	// queue limited at 3 running jobs
+            jl.setExecutionManager(new QueuedExecutionManager(service.getLogger(), 16));	// queue limited at 16 running jobs
             service.addJobList(jl);
 
         } catch (UWSException ue) {
