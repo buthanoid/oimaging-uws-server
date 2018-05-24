@@ -13,9 +13,11 @@
 # History 1.5 : 
 #   - update to wisard-ci V3_0_2Beta1
 #   - OImaging-uws : move from limit of // jobs from 3 to 16
+# History 1.6 : 
+#   - add MiRA  (https://github.com/emmt/MiRA)
 #
 NAME=oiservices
-VERSION=1.5
+VERSION=1.6
 TAR_FILE=$(NAME)-$(VERSION).tar
 
 all:	build
