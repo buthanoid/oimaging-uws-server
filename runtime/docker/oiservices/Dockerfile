@@ -15,6 +15,7 @@ RUN apt-get update -y ; apt-get install -y git cmake g++
 
 # need non-free for pgplot5 
 RUN sed -i "s/jessie main/jessie main contrib non-free/" /etc/apt/sources.list
+RUN apt-get update -y 
 RUN apt-get install -y git cmake g++
 
 # install oifitslib for bsmem after prerequisites
@@ -36,14 +37,14 @@ RUN cd /opt/bsmem*/build ; cmake .. -Wno-dev ; make ; make install; rm -rf /opt/
 
 ENV WISARD_CI_VERSION WISARD-CI_V3_0_2Beta1
 
-RUN apt-get install -y subversion
 
 # add astro-gdl, starting from stretch, this adds GDL and *almost* all required libraries.
-RUN apt-get install -yt stretch astro-gdl
+RUN apt-get install -yt stretch astro-gdl gnudatalanguage
 
 RUN echo "install WISARD-CI ( version: ${WISARD_CI_VERSION} )"
 #svn export  https://svn.jmmc.fr/jmmc-sw/WISARD-CI/trunk/wisard-ci 
 #ADD "wisard-ci" /opt/wisard-ci/
+RUN apt-get install -y subversion
 RUN cd /opt ; svn export https://svn.jmmc.fr/jmmc-sw/WISARD-CI/tags/${WISARD_CI_VERSION}/wisard-ci
 RUN ln -s /opt/wisard-ci/bin/wisard-ci /usr/bin
 
@@ -81,11 +82,14 @@ RUN apt-get install -y wget zip rlwrap &&\
 # with configure asked for install in /usr (/usr/lib is automatically found) + debian package  renamed 
 #RUN echo http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories && \
 #    apk add --update --no-cache --virtual .build-deps make wget build-base zip && \
-#    apk add --update --no-cache tiff-dev fftw-dev gsl-dev && \
-RUN apt-get update -y ; apt-get install -yt stretch libgsl0-dev libgsl0ldbl
-# libgsl0 + it's deps have been installed from stretch dist because of previous package installation required by Wisard-ci 
-RUN apt-get install -yt stretch libtiff5-dev libfftw3-dev &&\
-    mkdir -p /opt && cd /opt && \
+#    apk add --update --no-cache tiff-dev fftw-dev gsctsl-dev && \
+# RUN cd /tmp && apt-get download -yt stretch libgsl0-dev libgsl0ldbl && dpkg -i --force-depends libgsl0ldbl* && dpkg -i --force-depends libgsl0-dev*
+# # libgsl0 + it's deps have been installed from stretch dist because of previous package installation required by Wisard-ci 
+RUN apt-get install -yt stretch libtiff5-dev libfftw3-dev
+# and to be installed after libtiff* install using dpkg because of conflicts with libgsl2
+RUN cd /tmp && apt-get download -yt stretch libgsl0-dev libgsl0ldbl && dpkg -i --force-depends --force-conflicts libgsl0ldbl* && dpkg -i --force-depends --force-conflicts libgsl0-dev*
+
+RUN mkdir -p /opt && cd /opt && \
     wget http://heasarc.gsfc.nasa.gov/FTP/software/fitsio/c/cfitsio_latest.tar.gz &&\
     tar -xvzf cfitsio_latest.tar.gz && rm cfitsio_latest.tar.gz && cd cfitsio && \
     ./configure --prefix=/usr/ && make && make install && \
@@ -127,7 +131,7 @@ RUN apt-get install -yt stretch libtiff5-dev libfftw3-dev &&\
     unzip master.zip && rm master.zip && cd YTotVar-master && \
     yorick -batch make.i && make && make install && cd /opt && rm -rf YTotVar-master && \
     true
-#    apk del .build-deps && \
+# #    apk del .build-deps && \
 #    rm -rf /var/cache/apk/* 
 
 # inspired from https://hub.docker.com/r/ferreol/mira/~/dockerfile/
@@ -161,11 +165,10 @@ RUN    mkdir -p /opt && cd /opt && \
 
 
 # - Finall setup
-# cp bin/ymira "$BINDIR"
-# edit "$BINDIR/ymira"
-# chmod 755 "$BINDIR/ymira"
-
-
+RUN ln -s /opt/MiRA/bin/ymira /usr/bin
+# add custom wrapper for mira-ci
+ADD mira-ci.sh /usr/bin/mira-ci
+ADD model2oifits.pro /opt/wisard-ci/
 
 
 
