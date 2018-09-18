@@ -138,6 +138,8 @@ public class OImagingWork extends JobThread {
         // TODO reuse FileManager of Laurent's ivoa.runner
         // create the execution context with log file:
         File workDir = new File(FileUtils.getTempDirPath() + getJob().getJobId());
+        
+        // TODO: cleanup that directory
         workDir.mkdirs();
         final RootContext jobContext = LocalLauncher.prepareMainJob(APP_NAME, USER_NAME, workDir.getAbsolutePath(), logFilename);
         final String[] cmd = new String[]{appName, inputFilename, outputFilename};

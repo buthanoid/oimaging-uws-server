@@ -1,9 +1,11 @@
 package fr.jmmc.oimaging.uws;
 
+import fr.jmmc.jmcs.logging.LoggingService;
 import fr.jmmc.jmcs.util.runner.LocalLauncher;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Date;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -29,9 +31,90 @@ import uws.service.request.UploadFile;
 public class OImagingUwsService extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger _logger = LoggerFactory.getLogger(OImagingWork.class.getName());
+    private static Logger logger = null;
 
     private UWSService service = null;
+
+    public OImagingUwsService() {
+        super();
+    }
+
+    /* 
+     * REQUIRED
+	 * Initialize your UWS. At least, you should create one jobs list.
+     */
+    @Override
+    public void init(final ServletConfig config) throws ServletException {
+        // Start the application log singleton
+        LoggingService.getInstance();
+
+        final ch.qos.logback.classic.Logger jmmcLogger = LoggingService.getJmmcLogger();
+        jmmcLogger.info("jMCS log created at {}. Current level is {}.", new Date(), jmmcLogger.getEffectiveLevel());
+
+        // Initialize internal logger:
+        logger = LoggerFactory.getLogger(OImagingWork.class.getName());
+
+        try {
+            // Get UWS config from servlet config:
+            final int maxRunningJobs = Integer.valueOf(config.getInitParameter("maxRunningJobs"));
+
+            final File rootPath = new File(config.getServletContext().getRealPath("/"));
+
+            logger.info("init: Initializing UWS Service[maxRunningJobs = {} - root path = '{}'] ...",
+                    maxRunningJobs, rootPath);
+
+            final LocalUWSFileManager fileManager = new LocalUWSFileManager(rootPath);
+
+            // Create the UWS service:
+            service = new UWSService(new MyUWSFactory(), fileManager);
+
+            /* 
+            * Note:
+	         * Service files (like log and results) will be stored in a new directory called "ServiceFiles"
+             * inside the deployment directory of the webservice.
+             */
+            // Change the default home page:
+            service.replaceUWSAction(new MyHomePage(service));
+
+            JobList jl = new JobList("oimaging");
+            jl.setExecutionManager(new QueuedExecutionManager(service.getLogger(), maxRunningJobs));
+            service.addJobList(jl);
+
+        } catch (NumberFormatException nfe) {
+            throw new ServletException("Can not initialize the UWS service!", nfe);
+        } catch (UWSException ue) {
+            throw new ServletException("Can not initialize the UWS service!", ue);
+        }
+
+        LocalLauncher.startUp();
+
+        logger.info("init: done");
+    }
+
+    @Override
+    public void destroy() {
+        logger.info("destroy: stopping UWS Service...");
+
+        LocalLauncher.shutdown();
+
+        if (service != null) {
+            service.destroy();
+        }
+        logger.info("destroy: done");
+    }
+
+    /* 
+     * REQUIRED
+	 * Forward all requests to the UWSService instance and deal yourself with the coming errors (if any).
+     */
+    @Override
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try {
+            service.executeRequest(req, resp);
+        } catch (UWSException ue) {
+            resp.sendError(ue.getHttpErrorCode(), ue.getMessage());
+        }
+    }
 
     /*
 	 * REQUIRED
@@ -39,11 +122,10 @@ public class OImagingUwsService extends HttpServlet {
 	 * are now separated and only kept in the UWSJob given in parameter. This one is created automatically by the API.
 	 * You just have to provide the "work" part.
      */
-    private static class MyUWSFactory extends AbstractUWSFactory {
+    private static final class MyUWSFactory extends AbstractUWSFactory {
 
-        public MyUWSFactory() {
+        MyUWSFactory() {
             super();
-            _logger.warn("OImagingUwsService initialisation");
 
             addExpectedAdditionalParameter(OImagingWork.INPUTFILE);
             setInputParamController(OImagingWork.INPUTFILE, new InputParamController() {
@@ -63,7 +145,7 @@ public class OImagingUwsService extends HttpServlet {
                     } else {
                         // WARNING : this is a dead code area, we never enter this branch :(
                         // val == null or others
-                        _logger.error("inputfile is null");
+                        logger.error("inputfile is null");
                         throw new UWSException(UWSException.BAD_REQUEST, "Wrong \"" + OImagingWork.INPUTFILE + "\" param. An OIFits file is expected!", ErrorType.FATAL);
 
                     }
@@ -88,14 +170,16 @@ public class OImagingUwsService extends HttpServlet {
         }
     }
 
-    /* OPTIONAL
+    /* 
+     * OPTIONAL
      * By overriding this class and giving it to your UWSService instance, you can customize the root page of your UWS.
-     * If this class is not overridden an XML document which lists all registered jobs lists is returned. */
-    private static class MyHomePage extends ShowHomePage {
+     * If this class is not overridden an XML document which lists all registered jobs lists is returned.
+     */
+    private static final class MyHomePage extends ShowHomePage {
 
         private static final long serialVersionUID = 1L;
 
-        public MyHomePage(final UWSService u) {
+        MyHomePage(final UWSService u) {
             super(u);
         }
 
@@ -116,51 +200,4 @@ public class OImagingUwsService extends HttpServlet {
             return true;
         }
     }
-
-    /* REQUIRED
-	 * Initialize your UWS. At least, you should create one jobs list. */
-    @Override
-    public void init(ServletConfig config) throws ServletException {
-        try {
-            // TODO : bootstrap slf4j logging system
-            // Create the UWS service:
-            service = new UWSService(new MyUWSFactory(), new LocalUWSFileManager(new File(config.getServletContext().getRealPath("/"))));
-            /* Note:
-	     * Service files (like log and results) will be stored in a new directory called "ServiceFiles"
-             * inside the deployment directory of the webservice. */
-            // Change the default home page:
-            service.replaceUWSAction(new MyHomePage(service));
-
-            JobList jl = new JobList("oimaging");
-            jl.setExecutionManager(new QueuedExecutionManager(service.getLogger(), 16));	// queue limited at 16 running jobs
-            service.addJobList(jl);
-
-        } catch (UWSException ue) {
-            throw new ServletException("Can not initialize the UWS service!", ue);
-        }
-
-        LocalLauncher.startUp();
-    }
-
-    @Override
-    public void destroy() {
-
-        LocalLauncher.shutdown();
-
-        if (service != null) {
-            service.destroy();
-        }
-    }
-
-    /* REQUIRED
-	 * Forward all requests to the UWSService instance and deal yourself with the coming errors (if any). */
-    @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try {
-            service.executeRequest(req, resp);
-        } catch (UWSException ue) {
-            resp.sendError(ue.getHttpErrorCode(), ue.getMessage());
-        }
-    }
-
 }
