@@ -15,7 +15,7 @@
         <servlet-class>fr.jmmc.oimaging.uws.OImagingUwsService</servlet-class>
         <init-param>
             <param-name>maxRunningJobs</param-name>
-            <param-value>8</param-value>
+            <param-value>MAX_RUNNING_JOBS_VALUE</param-value>
         </init-param>
     </servlet>
     <servlet-mapping>
