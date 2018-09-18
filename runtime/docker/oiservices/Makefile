@@ -15,12 +15,18 @@
 #   - OImaging-uws : move from limit of // jobs from 3 to 16
 # History 1.6 :
 #   - add MiRA  (https://github.com/emmt/MiRA)
+# History 1.7 :
+#   - new wisard-ci version 
 #
 NAME=oiservices
-VERSION=1.6
+VERSION=1.7
 TAR_FILE=$(NAME)-$(VERSION).tar
 
 all:	build
+
+# call force-build to start again building process from the beginning
+force-build:	Dockerfile OImaging-uws.war
+	docker build --no-cache=true -t $(NAME):$(VERSION) --rm .
 
 build:	Dockerfile OImaging-uws.war
 	docker build -t $(NAME):$(VERSION) --rm .
@@ -33,9 +39,10 @@ OImaging-uws.war: ../../../target/OImaging-uws.war
 
 # Set Max running job in war file
 ../../../target/OImaging-uws.war:
-	cd ../../..
-#	sed -i s/MAX_RUNNING_JOBS_VALUE/8/g ./src/main/webapp/WEB-INF/web.xml
-	mvn clean install
+	cd ../../.. ;\
+	sed -i s/MAX_RUNNING_JOBS_VALUE/8/g ./src/main/webapp/WEB-INF/web.xml ;\
+	echo "Please have a look on values in src/main/webapp/WEB-INF/web.xml" ;\
+	mvn clean install ;\
 	cd -
 
 run:

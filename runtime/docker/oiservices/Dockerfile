@@ -35,7 +35,7 @@ RUN cd /opt/bsmem*/build ; cmake .. -Wno-dev ; make ; make install; rm -rf /opt/
 #  WISARD-CI
 #
 
-ENV WISARD_CI_VERSION WISARD-CI_V3_0_2Beta1
+ENV WISARD_CI_VERSION WISARD-CI_V3_1_0
 
 
 # add astro-gdl, starting from stretch, this adds GDL and *almost* all required libraries.
