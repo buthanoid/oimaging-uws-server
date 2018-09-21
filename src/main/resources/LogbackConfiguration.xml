@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!-- Application specific configuration -->
+<included>
+    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener" />
+
+    <!-- Appenders -->
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>oimaging-uws.log</file>
+        <append>true</append>
+        <!-- set immediateFlush to false for much higher logging throughput -->
+        <immediateFlush>true</immediateFlush>
+
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level [%thread] %logger{60} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- redefine custom appenders to NOP -->
+    <appender name="APPLOG" class="ch.qos.logback.core.helpers.NOPAppender" />
+    <appender name="STATUSLOG" class="ch.qos.logback.core.helpers.NOPAppender" />
+
+
+    <!-- Loggers -->
+
+    <!-- OImaging -->
+    <logger name="fr.jmmc.oimaging" level="INFO"/>
+
+    <!-- Root Logger -->
+    <root>
+        <appender-ref ref="FILE" />
+    </root>
+
+</included>
+
