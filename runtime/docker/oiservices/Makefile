@@ -16,7 +16,7 @@
 # History 1.6 :
 #   - add MiRA  (https://github.com/emmt/MiRA)
 # History 1.7 :
-#   - new wisard-ci version 
+#   - new wisard-ci version
 #
 NAME=oiservices
 VERSION=1.7
@@ -65,4 +65,6 @@ exec-wisard-ci-help:
 	docker run -it $(NAME):$(VERSION) wisard-ci -h
 
 clean:
+	rm ../../../target/OImaging-uws.war ;\
 	rm -rf OImaging-uws.war $(TAR_FILE)
+
