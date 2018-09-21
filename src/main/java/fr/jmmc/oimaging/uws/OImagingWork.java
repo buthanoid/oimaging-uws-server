@@ -82,8 +82,6 @@ public class OImagingWork extends JobThread {
 
             _logger.info("Job[{}] submitting task [software: {} inputFile: {}]", jobId, software, inputFilePath);
 
-            _logger.info("Job[{}] workDir: {}]", jobId, workDir);
-
             final int statusCode = exec(software, workDir, inputFilePath, outputFile.getAbsolutePath(), logFile.getAbsolutePath());
 
             _logger.info("Job[{}] exec returned: {}", jobId, statusCode);

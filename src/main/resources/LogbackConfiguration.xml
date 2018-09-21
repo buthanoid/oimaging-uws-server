@@ -2,7 +2,7 @@
 
 <!-- Application specific configuration -->
 <included>
-    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener" />
+<!--    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener" /> -->
 
     <!-- Appenders -->
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">

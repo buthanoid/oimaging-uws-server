@@ -19,6 +19,33 @@
             <groupId>fr.jmmc.jmcs</groupId>
             <artifactId>jmcs</artifactId>
             <version>TRUNK</version>
+            <!-- removed jmcs libraries dedicated to Swing apps -->
+            <exclusions>
+                <exclusion>
+                    <groupId>apple</groupId>
+                    <artifactId>AppleJavaExtensions</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>oss.jmcs</groupId>
+                    <artifactId>jmcs-MacOSX-9</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.jidesoft</groupId>
+                    <artifactId>jide-oss</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.astrogrid</groupId>
+                    <artifactId>jsamp</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.sun.woodstock.dependlibs</groupId>
+                    <artifactId>jhall</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>edu.stanford.ejalbert</groupId>
+                    <artifactId>BrowserLauncher2</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- please run get_deps.sh first -->
