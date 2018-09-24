@@ -46,7 +46,7 @@ OImaging-uws.war: ../../../target/OImaging-uws.war
 	cd -
 
 run:
-	docker run -it -p 8888:8080 $(NAME):$(VERSION)
+	docker run -it -p 8080:8080 $(NAME):$(VERSION)
 
 shell:
 	docker run -it $(NAME):$(VERSION) /bin/bash
