@@ -49,10 +49,10 @@ OImaging-uws.war: ../../../target/OImaging-uws.war
 	cd -
 
 run:
-	docker run -it -p 8080:8080 $(NAME):$(VERSION)
+	docker run -it --name oiservices -p 8080:8080 $(NAME):$(VERSION)
 
 shell:
-	docker run -it $(NAME):$(VERSION) /bin/bash
+	docker exec -it oiservices /bin/bash
 
 $(TAR_FILE):
 	docker save -o $(TAR_FILE) $(NAME):$(VERSION)
