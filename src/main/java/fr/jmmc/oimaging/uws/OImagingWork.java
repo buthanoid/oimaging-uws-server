@@ -22,7 +22,7 @@ import uws.service.request.UploadFile;
 public class OImagingWork extends JobThread {
 
     /** Logger */
-    private static final Logger _logger = LoggerFactory.getLogger(OImagingWork.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(OImagingWork.class.getName());
     /** application identifier for LocalService */
     public final static String APP_NAME = "OImaging-uws-worker";
     /** user for LocalService */
@@ -52,7 +52,7 @@ public class OImagingWork extends JobThread {
         final String software = (String) getJob().getAdditionalParameterValue(SOFTWARE);
 
         if (software == null) {
-            _logger.error(SOFTWARE + " is null");
+            logger.error(SOFTWARE + " is null");
             throw new UWSException(UWSException.BAD_REQUEST, "Wrong \"" + SOFTWARE + "\" param. An program name is expected!", ErrorType.FATAL);
         }
 
@@ -63,7 +63,7 @@ public class OImagingWork extends JobThread {
         final UploadFile inputFile = (UploadFile) getJob().getAdditionalParameterValue(INPUTFILE);
 
         if (inputFile == null) {
-            _logger.error(INPUTFILE + "is null");
+            logger.error(INPUTFILE + "is null");
             throw new UWSException(UWSException.BAD_REQUEST, "Wrong \"" + INPUTFILE + "\" param. An OIFits file is expected!", ErrorType.FATAL);
         }
 
@@ -83,11 +83,11 @@ public class OImagingWork extends JobThread {
             outputFile = new File(inputFilePath + ".out");
             logFile = new File(inputFilePath + ".log");
 
-            _logger.info("Job[{}] submitting task [software: {} inputFile: {}]", jobId, software, inputFilePath);
+            logger.info("Job[{}] submitting task [software: {} inputFile: {}]", jobId, software, inputFilePath);
 
             final int statusCode = exec(software, cliOptions, workDir, inputFilePath, outputFile.getAbsolutePath(), logFile.getAbsolutePath());
 
-            _logger.info("Job[{}] exec returned: {}", jobId, statusCode);
+            logger.info("Job[{}] exec returned: {}", jobId, statusCode);
 
             // TODO: if error, maybe use ErrorSummary but there is no way to return log file ?
             // setError(new ErrorSummary(String msg, ErrorType errorType, String detailedMsgURI));
@@ -100,16 +100,6 @@ public class OImagingWork extends JobThread {
                 FileUtils.saveFile(logFile, getResultOutput(logResult));
                 publishResult(logResult);
             }
-
-            /*
-            TODO: if cancelled => no cleanup happens ...
--rw-r--r-- 1 root root 95040 Sep 21 15:08 UPLOAD_1537542529530_inputfile
--rw-r--r-- 1 root root  4990 Sep 21 15:08 1537542529530_logfile
--rw-r--r-- 1 root root 95040 Sep 21 15:10 UPLOAD_1537542648765_inputfile
--rw-r--r-- 1 root root  4678 Sep 21 15:10 1537542648765_logfile
--rw-r--r-- 1 root root 95040 Sep 21 15:10 UPLOAD_1537542657517_inputfile
--rw-r--r-- 1 root root  4444 Sep 21 15:11 1537542657517_logfile
-             */
         } catch (IOException e) {
             // If there is an error, encapsulate it in an UWSException so that an error summary can be published:
             throw new UWSException(UWSException.INTERNAL_SERVER_ERROR, e, "Impossible to write the result file of the Job " + job.getJobId() + " !", ErrorType.TRANSIENT);
@@ -137,11 +127,11 @@ public class OImagingWork extends JobThread {
      * @throws IllegalStateException if the job can not be submitted to the job queue
      */
     public int exec(final String appName,
-            final String cliOptions,
-            final String workDir,
-            final String inputFilename,
-            final String outputFilename,
-            final String logFilename) throws IllegalStateException {
+                    final String cliOptions,
+                    final String workDir,
+                    final String inputFilename,
+                    final String outputFilename,
+                    final String logFilename) throws IllegalStateException {
 
         if (StringUtils.isEmpty(appName)) {
             throw new IllegalArgumentException("empty application name !");
@@ -185,11 +175,11 @@ public class OImagingWork extends JobThread {
             // TODO: use timeout to kill (too long or hanging) jobs anyway ?
             jobContext.getFuture().get();
         } catch (InterruptedException ie) {
-            _logger.debug("Job[{}] waitFor: interrupted, killing {}", jobId, jobContext.getId());
+            logger.debug("Job[{}] waitFor: interrupted, killing {}", jobId, jobContext.getId());
 
             LocalLauncher.cancelOrKillJob(jobContext.getId());
         } catch (ExecutionException ee) {
-            _logger.info("Job[{}] waitFor: execution error", jobId, ee);
+            logger.info("Job[{}] waitFor: execution error", jobId, ee);
         }
 
         // retrieve command execution status code
