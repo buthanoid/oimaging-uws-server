@@ -23,8 +23,9 @@ RUN apt-get install -y git cmake gcc g++ libcfitsio-dev libglib2.0-dev
 #RUN apt-get install -y git cmake gcc g++ libglib2.0-dev
 RUN cd /opt ; git clone https://github.com/jsy1001/oifitslib.git ; cd oifitslib ; git checkout v2.2.1 
 RUN cd /opt/oifitslib/build; cmake ..; make; make install
-RUN echo "install BSMem (using .tar.gz from https://gitlab.com/jsy1001/bsmem/tags)"
-ADD "bsmem-v2.0.6-*.tar.gz" /opt/
+RUN echo "install BSMem from http://www.mrao.cam.ac.uk/downloads/bsmem/bsmem-v2.1.1.tar.gz  ( we may use https://gitlab.com/jsy1001/bsmem/tags)"
+ADD http://www.mrao.cam.ac.uk/downloads/bsmem/bsmem-v2.1.1.tar.gz /opt/
+RUN cd /opt; tar xzf bsmem*.gz; rm bsmem*.gz
 RUN apt-get install -y cmake gfortran gcc pgplot5 xterm libcfitsio-dev libfftw3-dev libnfft3-dev libglib2.0-dev
 RUN cd /opt/bsmem*/build ; cmake .. -Wno-dev ; make ; make install; rm -rf /opt/bsmem*
 
