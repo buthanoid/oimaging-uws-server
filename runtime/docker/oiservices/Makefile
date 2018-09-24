@@ -17,9 +17,12 @@
 #   - add MiRA  (https://github.com/emmt/MiRA)
 # History 1.7 :
 #   - new wisard-ci version
+# History 1.8 :
+#   - OImaging UWS service now supports cliOptions
+#   - update to bsmem 2.1.1
 #
 NAME=oiservices
-VERSION=1.7
+VERSION=1.8
 TAR_FILE=$(NAME)-$(VERSION).tar
 
 all:	build
