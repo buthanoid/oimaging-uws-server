@@ -9,7 +9,6 @@ import fr.jmmc.jmcs.util.runner.RunState;
 import fr.jmmc.jmcs.util.runner.process.ProcessContext;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +31,7 @@ public class OImagingWork extends JobThread {
     public final static String TASK_NAME = "LocalRunner";
     public static final String INPUTFILE = "inputfile";
     public static final String SOFTWARE = "software";
+    public static final String CLI_OPTIONS = "cliOptions";
 
     public OImagingWork(UWSJob j) throws UWSException {
         super(j);
@@ -56,6 +56,9 @@ public class OImagingWork extends JobThread {
             throw new UWSException(UWSException.BAD_REQUEST, "Wrong \"" + SOFTWARE + "\" param. An program name is expected!", ErrorType.FATAL);
         }
 
+        // Check software options for cli
+        final String cliOptions = (String) getJob().getAdditionalParameterValue(CLI_OPTIONS);
+
         // Check inputFile param
         final UploadFile inputFile = (UploadFile) getJob().getAdditionalParameterValue(INPUTFILE);
 
@@ -74,7 +77,7 @@ public class OImagingWork extends JobThread {
             // and fakes other files using inputfile name
             // Warning : we use the path from getLocation()
             final String inputFilePath = inputFile.getLocation().replaceFirst("file:", "");
-            
+
             // TODO: create a temporary folder per job (to ensure minimal program isolation ...)
             final String workDir = new File(inputFilePath).getParentFile().getAbsolutePath();
             outputFile = new File(inputFilePath + ".out");
@@ -82,7 +85,7 @@ public class OImagingWork extends JobThread {
 
             _logger.info("Job[{}] submitting task [software: {} inputFile: {}]", jobId, software, inputFilePath);
 
-            final int statusCode = exec(software, workDir, inputFilePath, outputFile.getAbsolutePath(), logFile.getAbsolutePath());
+            final int statusCode = exec(software, cliOptions, workDir, inputFilePath, outputFile.getAbsolutePath(), logFile.getAbsolutePath());
 
             _logger.info("Job[{}] exec returned: {}", jobId, statusCode);
 
@@ -97,7 +100,7 @@ public class OImagingWork extends JobThread {
                 FileUtils.saveFile(logFile, getResultOutput(logResult));
                 publishResult(logResult);
             }
-            
+
             /*
             TODO: if cancelled => no cleanup happens ...
 -rw-r--r-- 1 root root 95040 Sep 21 15:08 UPLOAD_1537542529530_inputfile
@@ -106,8 +109,7 @@ public class OImagingWork extends JobThread {
 -rw-r--r-- 1 root root  4678 Sep 21 15:10 1537542648765_logfile
 -rw-r--r-- 1 root root 95040 Sep 21 15:10 UPLOAD_1537542657517_inputfile
 -rw-r--r-- 1 root root  4444 Sep 21 15:11 1537542657517_logfile
-            */
-
+             */
         } catch (IOException e) {
             // If there is an error, encapsulate it in an UWSException so that an error summary can be published:
             throw new UWSException(UWSException.INTERNAL_SERVER_ERROR, e, "Impossible to write the result file of the Job " + job.getJobId() + " !", ErrorType.TRANSIENT);
@@ -126,18 +128,20 @@ public class OImagingWork extends JobThread {
      * Launch the given application in background.
      *
      * @param appName
-     * @param inputFilename
+     * @param cliOptions software options on command line or null
      * @param workDir
+     * @param inputFilename
      * @param outputFilename
      * @param logFilename
      * @return status code of the executed command
      * @throws IllegalStateException if the job can not be submitted to the job queue
      */
     public int exec(final String appName,
-                    final String workDir,
-                    final String inputFilename,
-                    final String outputFilename,
-                    final String logFilename) throws IllegalStateException {
+            final String cliOptions,
+            final String workDir,
+            final String inputFilename,
+            final String outputFilename,
+            final String logFilename) throws IllegalStateException {
 
         if (StringUtils.isEmpty(appName)) {
             throw new IllegalArgumentException("empty application name !");
@@ -156,7 +160,14 @@ public class OImagingWork extends JobThread {
         final String jobId = getJob().getJobId();
 
         final RootContext jobContext = LocalLauncher.prepareMainJob(APP_NAME, USER_NAME, workDir, logFilename);
-        final String[] cmd = new String[]{appName, inputFilename, outputFilename};
+
+        final String[] cmd;
+        if (cliOptions == null) {
+            cmd = new String[]{appName, inputFilename, outputFilename};
+        } else {
+            cmd = new String[]{appName, cliOptions, inputFilename, outputFilename};
+        }
+
         final RunContext runCtx = LocalLauncher.prepareChildJob(jobContext, TASK_NAME, cmd);
 
         // If the task has been canceled/interrupted, do not fork process:
