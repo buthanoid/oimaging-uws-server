@@ -5,7 +5,6 @@ import fr.jmmc.jmcs.util.StringUtils;
 import fr.jmmc.jmcs.util.runner.LocalLauncher;
 import fr.jmmc.jmcs.util.runner.RootContext;
 import fr.jmmc.jmcs.util.runner.RunContext;
-import fr.jmmc.jmcs.util.runner.RunState;
 import fr.jmmc.jmcs.util.runner.process.ProcessContext;
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +31,8 @@ public class OImagingWork extends JobThread {
     public static final String INPUTFILE = "inputfile";
     public static final String SOFTWARE = "software";
     public static final String CLI_OPTIONS = "cliOptions";
+    /** special exit code indicating the job was cancelled / killed */
+    public static final int EXEC_KILLED = 257;
 
     public OImagingWork(UWSJob j) throws UWSException {
         super(j);
@@ -89,20 +90,24 @@ public class OImagingWork extends JobThread {
 
             logger.info("Job[{}] exec returned: {}", jobId, statusCode);
 
-            // TODO: if error, maybe use ErrorSummary but there is no way to return log file ?
-            // setError(new ErrorSummary(String msg, ErrorType errorType, String detailedMsgURI));
-            if (outputFile.exists()) {
-                FileUtils.saveFile(outputFile, getResultOutput(outputResult));
-                publishResult(outputResult);
-            }
-
-            if (logFile.exists()) {
-                FileUtils.saveFile(logFile, getResultOutput(logResult));
-                publishResult(logResult);
+            if (statusCode == EXEC_KILLED) {
+                // Interrupt the thread to make JobThread abort this job:
+                Thread.currentThread().interrupt();
+            } else {
+                // TODO: if error, maybe use ErrorSummary but there is no way to return log file ?
+                // setError(new ErrorSummary(String msg, ErrorType errorType, String detailedMsgURI));
+                if (outputFile.exists()) {
+                    FileUtils.saveFile(outputFile, getResultOutput(outputResult));
+                    publishResult(outputResult);
+                }
+                if (logFile.exists()) {
+                    FileUtils.saveFile(logFile, getResultOutput(logResult));
+                    publishResult(logResult);
+                }
             }
         } catch (IOException e) {
             // If there is an error, encapsulate it in an UWSException so that an error summary can be published:
-            throw new UWSException(UWSException.INTERNAL_SERVER_ERROR, e, "Impossible to write the result file of the Job " + job.getJobId() + " !", ErrorType.TRANSIENT);
+            throw new UWSException(UWSException.INTERNAL_SERVER_ERROR, e, "Impossible to write the result file of the Job " + jobId + " !", ErrorType.TRANSIENT);
         } finally {
             if (outputFile != null) {
                 outputFile.delete();
@@ -111,7 +116,6 @@ public class OImagingWork extends JobThread {
                 logFile.delete();
             }
         }
-
     }
 
     /**
@@ -160,9 +164,9 @@ public class OImagingWork extends JobThread {
 
         final RunContext runCtx = LocalLauncher.prepareChildJob(jobContext, TASK_NAME, cmd);
 
-        // If the task has been canceled/interrupted, do not fork process:
+        // If the task has been cancelled/interrupted, do not fork process:
         if (Thread.currentThread().isInterrupted()) {
-            return 1;
+            return EXEC_KILLED;
         }
 
         // Puts the job in the job queue (can throw IllegalStateException if job not queued)
@@ -170,26 +174,42 @@ public class OImagingWork extends JobThread {
 
         // Wait for process completion
         try {
-            // Wait for task to be done :
-
             // TODO: use timeout to kill (too long or hanging) jobs anyway ?
+            // Wait for task to be done :
             jobContext.getFuture().get();
         } catch (InterruptedException ie) {
             logger.debug("Job[{}] waitFor: interrupted, killing {}", jobId, jobContext.getId());
 
             LocalLauncher.cancelOrKillJob(jobContext.getId());
+
+            try {
+                // Wait for process to die:
+                jobContext.getFuture().get();
+            } catch (InterruptedException ie2) {
+                logger.debug("Job[{}] waitFor: interrupted 2 {}", jobId);
+            } catch (ExecutionException ee) {
+                logger.debug("Job[{}] waitFor: execution error", jobId, ee);
+            }
+            logger.debug("Job[{}] waitFor: interrupted, done", jobId);
+
         } catch (ExecutionException ee) {
             logger.info("Job[{}] waitFor: execution error", jobId, ee);
         }
 
         // retrieve command execution status code
-        if (jobContext.getState() == RunState.STATE_FINISHED_OK) {
-            return 0;
+        switch (jobContext.getState()) {
+            case STATE_FINISHED_OK:
+                return 0;
+            case STATE_CANCELED:
+            case STATE_INTERRUPTED:
+            case STATE_KILLED:
+                return EXEC_KILLED;
+            default:
+                if (runCtx instanceof ProcessContext) {
+                    return ((ProcessContext) runCtx).getExitCode();
+                }
+                return -1;
         }
-        if (runCtx instanceof ProcessContext) {
-            return ((ProcessContext) runCtx).getExitCode();
-        }
-        return -1;
     }
 
 }
