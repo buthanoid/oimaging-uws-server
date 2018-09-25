@@ -24,7 +24,7 @@ fi
 # Print usage and exit program
 function printUsage ()
 {
-  echo -e "Usage: $SCRIPTNAME [-h] [-v] [-d] [-f fov] [-i init_img] <input> <output>"
+  echo -e "Usage: $SCRIPTNAME [-h] [-v] <input> <output>"
   echo -e "\t-h\tprint this help."
   echo -e "\t-v\tprint version. "
   exit 1
@@ -42,6 +42,30 @@ function printVersion ()
   fi
   exit 0
 }
+
+
+# Parse command-line parameters
+while getopts "hvdAf:i:n:r:N:w:" option
+do
+    case $option in
+        h )
+            printUsage ;;
+        v )
+            printVersion ;;
+        * ) # Unknown option
+            echo "Invalid option -- $option"
+            printUsage ;;
+    esac
+done
+
+let SHIFTOPTIND=$OPTIND-1
+shift $SHIFTOPTIND
+
+if [ $# -lt 2 ]
+then
+    echo "ERROR: Missing arguments"
+    printUsage
+fi
 
 INPUT="$(readlink -f $1)"
 OUTPUT="$(readlink -f $2)"
@@ -67,9 +91,12 @@ fi
 
 TMPOUTPUT="${OUTPUT}.tmp"
 CONVERT_COMMAND="model2oifits,'"$INPUT"','${TMPOUTPUT}','"$OUTPUT"'"
+
 # start mira and get intermediate result in OUTPUT.tmp file
-ymira -pixelsize=0.25mas -fov=16mas -normalization=1 -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft "${INPUT}" "${TMPOUTPUT}" 
+ymira -pixelsize=0.25mas -fov=16mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft "${INPUT}" "${TMPOUTPUT}"
+
 # produce compliant oifits
 if [ -e "${TMPOUTPUT}" ] ; then gdl -e "$CONVERT_COMMAND" ; fi
 # clean intermediate file
-if [ -e "${TMPOUTPUT}" ] ; then rm "${TMPOUTPUT}" ; fi 
+if [ -e "${TMPOUTPUT}" ] ; then rm "${TMPOUTPUT}" ; fi
+
