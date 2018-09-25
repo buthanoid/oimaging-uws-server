@@ -185,4 +185,6 @@ ADD OImaging-uws.war /usr/local/tomcat/webapps/
 
 RUN apt-get clean
 
+# Reduce memory footprint for tomcat (UWS):
+ENV CATALINA_OPTS="-Xms128m -Xmx512m"
 EXPOSE 8080
