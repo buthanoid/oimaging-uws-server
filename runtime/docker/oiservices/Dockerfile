@@ -10,21 +10,25 @@ FROM tomcat:8.0
 #  BSMEM
 #
 
-# need non-free for pgplot5
 RUN set -eux ; \
+# need non-free for pgplot5
     sed -i "s/jessie main/jessie main contrib non-free/" /etc/apt/sources.list && \
 # install oifitslib for bsmem after prerequisites
-    apt-get update -y && apt-get install -y git cmake gcc g++ libcfitsio-dev libglib2.0-dev && \
+	BUILD_PKG="git cmake gcc g++" && \
+    apt-get update -y && apt-get install -y $BUILD_PKG libcfitsio-dev libglib2.0-dev && \
     cd /opt && git clone https://github.com/jsy1001/oifitslib.git && cd oifitslib && git checkout v2.2.1 && \
-    cd /opt/oifitslib/build && cmake .. && make && make install
+    cd /opt/oifitslib/build && cmake .. && make && make install && cd /opt && rm -rf /opt/oifitslib && \
+    apt-get purge --auto-remove -y $BUILD_PKG
 
 # install bsmem
 RUN set -eux ; \
-    echo "install BSMem from http://www.mrao.cam.ac.uk/downloads/bsmem/bsmem-v2.1.1.tar.gz  (we may use https://gitlab.com/jsy1001/bsmem/tags)" && \
+    echo "install BSMem from http://www.mrao.cam.ac.uk/downloads/bsmem/bsmem-v2.1.1.tar.gz (we may use https://gitlab.com/jsy1001/bsmem/tags)" && \
     cd /opt && wget http://www.mrao.cam.ac.uk/downloads/bsmem/bsmem-v2.1.1.tar.gz && \
     tar xzf bsmem*.gz && rm bsmem*.gz && \
-    apt-get install -y cmake gfortran gcc pgplot5 xterm libcfitsio-dev libfftw3-dev libnfft3-dev libglib2.0-dev && \
-    cd /opt/bsmem*/build && cmake .. -Wno-dev && make && make install && rm -rf /opt/bsmem*
+	BUILD_PKG="cmake gcc g++ gfortran" && \
+    apt-get install -y $BUILD_PKG pgplot5 xterm libcfitsio-dev libfftw3-dev libnfft3-dev libglib2.0-dev && \
+    cd /opt/bsmem*/build && cmake .. -Wno-dev && make && make install && cd /opt && rm -rf /opt/bsmem* && \
+    apt-get purge --auto-remove -y $BUILD_PKG
 
 
 
@@ -40,19 +44,21 @@ ENV WISARD_CI_VERSION="WISARD-CI_V3_1_0"
 
 # add astro-gdl, starting from stretch, this adds GDL and *almost* all required libraries.
 RUN set -eux ; \
+# install anyway gcc (as stretch will cause conflitcs later)
+    apt-get install -y git make gcc g++ && \
+# use debian stretch below:
     apt-get install -yt stretch astro-gdl gnudatalanguage && \
     echo "install WISARD-CI ( version: ${WISARD_CI_VERSION} )" && \
-    apt-get install -y subversion && \
+    BUILD_PKG="subversion" && \
+    apt-get install -y $BUILD_PKG && \
 # install wisard from svn
     cd /opt && svn export https://svn.jmmc.fr/jmmc-sw/WISARD-CI/tags/${WISARD_CI_VERSION}/wisard-ci && \
     ln -s /opt/wisard-ci/bin/wisard-ci /usr/bin && \
 # it is necessary to have the astro libraries in gdl, they are not put by default in its path, so
     echo '!PATH=!PATH+":/usr/share/gnudatalanguage/astrolib"' > /opt/wisard-ci/gdl_startup.pro && \
 # Define CPU limit for IDL runtime:
-    echo 'IDL_CPU_TPOOL_NTHREADS=1' >> /opt/wisard-ci/gdl_startup.pro
-
-# at that point, gdl is able to run wisard using a command like:
-#GDL_STARTUP="gdl_startup.pro" gdl -e "wisardgui,\"inputdata/2004/2004-FKV1137.fits\",\"toto3.fits\""
+    echo 'IDL_CPU_TPOOL_NTHREADS=1' >> /opt/wisard-ci/gdl_startup.pro && \
+    apt-get purge --auto-remove -y $BUILD_PKG
 
 
 
@@ -69,13 +75,15 @@ RUN set -eux ; \
 #RUN echo http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories && \
 #    apk add --update --no-cache --virtual .build-deps make wget build-base zip && \
 #    apk add --update --no-cache rlwrap && \
-    apt-get install -y wget zip rlwrap && \
+    BUILD_PKG="zip" && \
+    apt-get install -y $BUILD_PKG wget rlwrap && \
     mkdir -p /opt && cd /opt && \
     wget https://github.com/dhmunro/yorick/archive/master.zip && \
     unzip master.zip && rm master.zip && cd yorick-master && \
     make install NO_XLIB=yes COPT_DEFAULT=-O2 && mv relocate /opt/yorick && \
     ln -s /opt/yorick/bin/yorick /usr/local/bin/yorick && \
     rm -rf /opt/yorick-master && \
+    apt-get purge --auto-remove -y $BUILD_PKG && \
 #    apk del --virtual .build-deps && \
 #    rm -rf /var/cache/apk/* /opt/yorick/doc/*  && \
     touch /opt/yorick/yorick.commands
@@ -171,6 +179,9 @@ RUN set -eux ; \
 #    apk del .build-deps  && \
 #    rm -rf /var/cache/apk/* && rm -rf /usr/local/share/doc
     true
+
+# Limit threads for OpenMP:
+ENV OMP_THREAD_LIMIT=1
 
 # add custom wrapper for mira-ci
 ADD mira-ci.sh /opt/MiRA/bin/

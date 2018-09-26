@@ -8,6 +8,33 @@
 #
 
 
+# TRAP: Do not leave children jobs running if the shell has been cancelled
+cleanup_trap() {
+    CHILDREN_PIDS=$(jobs -p)
+    if [ -n "$CHILDREN_PIDS" ]
+    then
+        trap - EXIT
+        echo -e "SHELL cancelled, stopping $CHILDREN_PIDS"
+        # we may try to send only TERM before a pause and a last loop with KILL signal ?
+        kill $CHILDREN_PIDS
+
+        echo -e "SHELL cancelled, waiting on $CHILDREN_PIDS"
+        # wait for all pids
+        for pid in $CHILDREN_PIDS; do
+            wait $pid
+        done
+
+        CHILDREN_PIDS=$(jobs -p)
+        if [ -n "$CHILDREN_PIDS" ]
+        then
+            echo -e "SHELL cancelled, killing $CHILDREN_PIDS"
+            kill -9 $CHILDREN_PIDS
+        fi
+  fi
+}
+trap cleanup_trap EXIT
+
+
 # HERE BEGINS THE SCRIPT
 
 #make FULLSCRIPTNAME and SCRIPTROOT fully qualified
@@ -90,13 +117,16 @@ else
 fi
 
 TMPOUTPUT="${OUTPUT}.tmp"
-CONVERT_COMMAND="model2oifits,'"$INPUT"','${TMPOUTPUT}','"$OUTPUT"'"
 
 # start mira and get intermediate result in OUTPUT.tmp file
-ymira -pixelsize=0.25mas -fov=16mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft "${INPUT}" "${TMPOUTPUT}"
+# -xform=nfft # seems not working !
+ymira -pixelsize=0.2mas -fov=30mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=separable -nthreads=1 -initial=${INPUT} "${INPUT}" "${TMPOUTPUT}"
 
-# produce compliant oifits
+# produce compliant oifits for OIMAGING:
+cd /opt/wisard-ci # TODO: use ENV var
+
+CONVERT_COMMAND="model2oifits,'"$INPUT"','${TMPOUTPUT}','"$OUTPUT"'"
+
 if [ -e "${TMPOUTPUT}" ] ; then gdl -e "$CONVERT_COMMAND" ; fi
 # clean intermediate file
 if [ -e "${TMPOUTPUT}" ] ; then rm "${TMPOUTPUT}" ; fi
-
