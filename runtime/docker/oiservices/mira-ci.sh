@@ -121,8 +121,9 @@ fi
 TMPOUTPUT="${OUTPUT}.tmp"
 
 # start mira and get intermediate result in OUTPUT.tmp file
-echo 'cmd: ymira -pixelsize=0.2mas -fov=30mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft -initial=${INPUT} "${INPUT}" "${TMPOUTPUT}"'
-ymira -pixelsize=0.2mas -fov=30mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft -initial=${INPUT} "${INPUT}" "${TMPOUTPUT}"
+echo 'cmd: ymira -debug -verb=1000 -recenter -pixelsize=0.1mas -fov=20mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft -initial=random "${INPUT}" "${TMPOUTPUT}"'
+#ymira -pixelsize=0.2mas -fov=30mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft -initial=${INPUT} "${INPUT}" "${TMPOUTPUT}"
+ymira -debug -verb=1000 -recenter -pixelsize=0.1mas -fov=20mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft -initial=random "${INPUT}" "${TMPOUTPUT}"
 
 # produce compliant oifits for OIMAGING:
 if [ -e "${TMPOUTPUT}" ] ; then
