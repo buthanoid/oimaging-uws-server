@@ -121,28 +121,17 @@ fi
 TMPOUTPUT="${OUTPUT}.tmp"
 
 # start mira and get intermediate result in OUTPUT.tmp file
-# -xform=nfft # seems not working !
-
-echo 'cmd: ymira -pixelsize=0.2mas -fov=30mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=separable -nthreads=1 -initial=${INPUT} "${INPUT}" "${TMPOUTPUT}"'
-
-ymira -pixelsize=0.2mas -fov=30mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=separable -nthreads=1 -initial=${INPUT} "${INPUT}" "${TMPOUTPUT}"
+echo 'cmd: ymira -pixelsize=0.2mas -fov=30mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft -initial=${INPUT} "${INPUT}" "${TMPOUTPUT}"'
+ymira -pixelsize=0.2mas -fov=30mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft -initial=${INPUT} "${INPUT}" "${TMPOUTPUT}"
 
 # produce compliant oifits for OIMAGING:
-
 if [ -e "${TMPOUTPUT}" ] ; then
     CONVERT_COMMAND="model2oifits,'"$INPUT"','${TMPOUTPUT}','"$OUTPUT"'"
 
-    echo 'gdl -e "$CONVERT_COMMAND"'
-
     cd $WISARD_DIR
 
-    # fix gdl interactive mode:
-    OLDTERM="$TERM"
-    TERM=""
-
-    gdl -e "$CONVERT_COMMAND" ;
-
-    TERM="$OLDTERM"
+    # ensure we are detached from a terminal:
+    echo "$CONVERT_COMMAND" | gdl
 
     # clean intermediate file
     if [ -e "${TMPOUTPUT}" ] ; then rm "${TMPOUTPUT}" ; fi

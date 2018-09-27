@@ -1,9 +1,13 @@
 # Exposes UWS services - Work In Progress
 # https://hub.docker.com/_/tomcat/
 #
-FROM tomcat:8.0
+# debian stretch
+FROM tomcat:8.0-jre8
 
+# ALWAYS RUN apt-get update && apt-get install -y --no-install-recommends
 
+# add french mirror (speedup ?) with non-free (pgplot5)
+ADD stretch_sources.list /etc/apt/sources.list
 
 ###################################
 #
@@ -11,11 +15,9 @@ FROM tomcat:8.0
 #
 
 RUN set -eux ; \
-# need non-free for pgplot5
-    sed -i "s/jessie main/jessie main contrib non-free/" /etc/apt/sources.list && \
 # install oifitslib for bsmem after prerequisites
-	BUILD_PKG="git cmake gcc g++" && \
-    apt-get update -y && apt-get install -y $BUILD_PKG libcfitsio-dev libglib2.0-dev && \
+	BUILD_PKG="git cmake make gcc g++" && \
+    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG libcfitsio-dev libglib2.0-dev && \
     cd /opt && git clone https://github.com/jsy1001/oifitslib.git && cd oifitslib && git checkout v2.2.1 && \
     cd /opt/oifitslib/build && cmake .. && make && make install && cd /opt && rm -rf /opt/oifitslib && \
     apt-get purge --auto-remove -y $BUILD_PKG
@@ -25,8 +27,8 @@ RUN set -eux ; \
     echo "install BSMem from http://www.mrao.cam.ac.uk/downloads/bsmem/bsmem-v2.1.1.tar.gz (we may use https://gitlab.com/jsy1001/bsmem/tags)" && \
     cd /opt && wget http://www.mrao.cam.ac.uk/downloads/bsmem/bsmem-v2.1.1.tar.gz && \
     tar xzf bsmem*.gz && rm bsmem*.gz && \
-	BUILD_PKG="cmake gcc g++ gfortran" && \
-    apt-get install -y $BUILD_PKG pgplot5 xterm libcfitsio-dev libfftw3-dev libnfft3-dev libglib2.0-dev && \
+	BUILD_PKG="cmake make gcc g++ gfortran" && \
+    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG pgplot5 xterm libcfitsio-dev libfftw3-dev libnfft3-dev libglib2.0-dev && \
     cd /opt/bsmem*/build && cmake .. -Wno-dev && make && make install && cd /opt && rm -rf /opt/bsmem* && \
     apt-get purge --auto-remove -y $BUILD_PKG
 
@@ -37,18 +39,14 @@ RUN set -eux ; \
 #  WISARD-CI
 #
 
-ENV WISARD_CI_VERSION="WISARD-CI_V3_1_1"
-ENV WISARD_DIR="/opt/wisard-ci"
+ENV WISARD_CI_VERSION="WISARD-CI_V3_1_2" \
+    WISARD_DIR="/opt/wisard-ci"
 
 # add astro-gdl, starting from stretch, this adds GDL and *almost* all required libraries.
 RUN set -eux ; \
-# install anyway gcc (as stretch will cause conflitcs later)
-    apt-get install -y git make gcc g++ && \
-# use debian stretch below:
-    apt-get install -yt stretch astro-gdl gnudatalanguage && \
-    echo "install WISARD-CI ( version: ${WISARD_CI_VERSION} )" && \
     BUILD_PKG="subversion" && \
-    apt-get install -y $BUILD_PKG && \
+    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG astro-gdl gnudatalanguage gdl-astrolib && \
+    echo "install WISARD-CI ( version: ${WISARD_CI_VERSION} )" && \
 # install wisard from svn
     cd /opt && svn export https://svn.jmmc.fr/jmmc-sw/WISARD-CI/tags/${WISARD_CI_VERSION}/wisard-ci && \
     ln -s $WISARD_DIR/bin/wisard-ci /usr/bin && \
@@ -73,8 +71,9 @@ RUN set -eux ; \
 #RUN echo http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories && \
 #    apk add --update --no-cache --virtual .build-deps make wget build-base zip && \
 #    apk add --update --no-cache rlwrap && \
-    BUILD_PKG="zip" && \
-    apt-get install -y $BUILD_PKG wget rlwrap && \
+# rlwrap is only used in interpreter mode (skipped)
+    BUILD_PKG="make gcc g++ zip" && \
+    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG && \
     mkdir -p /opt && cd /opt && \
     wget https://github.com/dhmunro/yorick/archive/master.zip && \
     unzip master.zip && rm master.zip && cd yorick-master && \
@@ -94,10 +93,8 @@ RUN set -eux ; \
 #RUN echo http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories && \
 #    apk add --update --no-cache --virtual .build-deps make wget build-base zip && \
 #    apk add --update --no-cache tiff-dev fftw-dev gsctsl-dev && \
-    apt-get install -yt stretch libtiff5-dev libfftw3-dev && \
-# and to be installed after libtiff* install using dpkg because of conflicts with libgsl2
-    cd /tmp && apt-get download -yt stretch libgsl0-dev libgsl0ldbl && dpkg -i --force-depends --force-conflicts libgsl0ldbl* && dpkg -i --force-depends --force-conflicts libgsl0-dev* && \
-# libgsl0 + it's deps have been installed from stretch dist because of previous package installation required by Wisard-ci
+    BUILD_PKG="make gcc g++ zip" && \
+    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG libtiff5-dev libfftw3-dev libgsl-dev libgsl2 && \
     mkdir -p /opt && cd /opt && \
     wget http://heasarc.gsfc.nasa.gov/FTP/software/fitsio/c/cfitsio_latest.tar.gz && \
     tar -xvzf cfitsio_latest.tar.gz && rm cfitsio_latest.tar.gz && cd cfitsio && \
@@ -141,7 +138,7 @@ RUN set -eux ; \
     yorick -batch make.i && make && make install && cd /opt && rm -rf YTotVar-master && \
 #    apk del .build-deps && \
 #    rm -rf /var/cache/apk/*
-    true
+    apt-get purge --auto-remove -y $BUILD_PKG
 
 
 # install MiRA
@@ -153,6 +150,8 @@ RUN set -eux ; \
 #RUN echo http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories && \
 #    apk add --update --no-cache --virtual .build-deps  bash git make wget build-base zip  && \
 #    apk add --update  --no-cache fftw-dev  && \
+    BUILD_PKG="git make gcc g++ zip" && \
+    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG && \
     mkdir -p /opt && cd /opt && \
     wget https://github.com/emmt/OptimPackLegacy/archive/master.zip && \
     unzip master.zip && rm master.zip && cd OptimPackLegacy-master/ && \
@@ -176,10 +175,22 @@ RUN set -eux ; \
     cd ../.. && ./configure  && make install && \
 #    apk del .build-deps  && \
 #    rm -rf /var/cache/apk/* && rm -rf /usr/local/share/doc
-    true
+    apt-get purge --auto-remove -y $BUILD_PKG
 
 # Limit threads for OpenMP:
-ENV OMP_THREAD_LIMIT=1
+ENV OMP_THREAD_LIMIT=1 \
+    MIRA_SRCDIR="/opt/MiRA/src"
+
+# Patch MRDFITS.pro
+ADD mrdfits.patch $WISARD_DIR/
+
+RUN set -eux ; \
+	BUILD_PKG="patch" && \
+    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG && \
+    patch /usr/share/gnudatalanguage/astrolib/mrdfits.pro < $WISARD_DIR/mrdfits.patch && \
+    rm $WISARD_DIR/mrdfits.patch && \
+    apt-get purge --auto-remove -y $BUILD_PKG
+
 
 # add custom wrapper for mira-ci
 ADD mira-ci.sh /opt/MiRA/bin/
@@ -189,21 +200,21 @@ RUN set -eux ; \
     ln -s /opt/MiRA/bin/ymira /usr/bin && \
     ln -s /opt/MiRA/bin/mira-ci.sh /usr/bin/mira-ci
 
-ENV MIRA_SRCDIR="/opt/MiRA/src"
-
-
 
 ###################################
 #
 #  Finalization
 #
 
+# Add vi, top, ps:
+RUN set -eux ; \
+    apt-get update && apt-get install -y --no-install-recommends procps vim
+
+
 # next line could allow to reach tomcat manager interface
 #ADD tomcat-users.xml /usr/local/tomcat/conf/
 # But next line provide a war that is autodeployed on startup CONTEXT_PATH is not honored : app dir is the basename of the war (OImaging-uws here).
 ADD OImaging-uws.war /usr/local/tomcat/webapps/
-
-RUN apt-get clean
 
 # Reduce memory footprint for tomcat (UWS):
 ENV CATALINA_OPTS="-Xms128m -Xmx512m"
