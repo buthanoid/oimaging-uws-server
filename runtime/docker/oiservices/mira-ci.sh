@@ -112,6 +112,8 @@ then
     echo "DEBUG using startup procedure $IDL_STARTUP"
   fi
 else
+  echo "MIRA_CI_VERSION: $MIRA_CI_VERSION"
+
   # add helper to launch gdl properly. this procedure shoudl insure that the IDL/GDL !PATH contains idlastro procedures (readfits.pro etc).
   export GDL_STARTUP="gdl_startup.pro"
 fi
@@ -137,9 +139,12 @@ if [ -e "${TMPOUTPUT}" ] ; then
     # fix gdl interactive mode:
     OLDTERM="$TERM"
     TERM=""
+
     gdl -e "$CONVERT_COMMAND" ;
+
     TERM="$OLDTERM"
 
     # clean intermediate file
     if [ -e "${TMPOUTPUT}" ] ; then rm "${TMPOUTPUT}" ; fi
 fi
+
