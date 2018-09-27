@@ -38,9 +38,7 @@ RUN set -eux ; \
 #
 
 ENV WISARD_CI_VERSION="WISARD-CI_V3_1_1"
-
-#svn export  https://svn.jmmc.fr/jmmc-sw/WISARD-CI/trunk/wisard-ci
-#ADD "wisard-ci" /opt/wisard-ci/
+ENV WISARD_DIR="/opt/wisard-ci"
 
 # add astro-gdl, starting from stretch, this adds GDL and *almost* all required libraries.
 RUN set -eux ; \
@@ -53,11 +51,11 @@ RUN set -eux ; \
     apt-get install -y $BUILD_PKG && \
 # install wisard from svn
     cd /opt && svn export https://svn.jmmc.fr/jmmc-sw/WISARD-CI/tags/${WISARD_CI_VERSION}/wisard-ci && \
-    ln -s /opt/wisard-ci/bin/wisard-ci /usr/bin && \
+    ln -s $WISARD_DIR/bin/wisard-ci /usr/bin && \
 # it is necessary to have the astro libraries in gdl, they are not put by default in its path, so
-    echo '!PATH=!PATH+":/usr/share/gnudatalanguage/astrolib"' > /opt/wisard-ci/gdl_startup.pro && \
+    echo '!PATH=!PATH+":/usr/share/gnudatalanguage/astrolib"' > $WISARD_DIR/gdl_startup.pro && \
 # Define CPU limit for IDL runtime:
-    echo 'IDL_CPU_TPOOL_NTHREADS=1' >> /opt/wisard-ci/gdl_startup.pro && \
+    echo 'IDL_CPU_TPOOL_NTHREADS=1' >> $WISARD_DIR/gdl_startup.pro && \
     apt-get purge --auto-remove -y $BUILD_PKG
 
 
@@ -185,7 +183,6 @@ ENV OMP_THREAD_LIMIT=1
 
 # add custom wrapper for mira-ci
 ADD mira-ci.sh /opt/MiRA/bin/
-ADD model2oifits.pro /opt/wisard-ci/
 
 RUN set -eux ; \
     chmod +x /opt/MiRA/bin/mira-ci.sh && \

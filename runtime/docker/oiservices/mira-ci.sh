@@ -134,7 +134,7 @@ if [ -e "${TMPOUTPUT}" ] ; then
 
     echo 'gdl -e "$CONVERT_COMMAND"'
 
-    cd /opt/wisard-ci # TODO: use ENV var
+    cd $WISARD_DIR
 
     # fix gdl interactive mode:
     OLDTERM="$TERM"
