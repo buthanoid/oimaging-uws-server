@@ -120,13 +120,26 @@ TMPOUTPUT="${OUTPUT}.tmp"
 
 # start mira and get intermediate result in OUTPUT.tmp file
 # -xform=nfft # seems not working !
+
+echo 'cmd: ymira -pixelsize=0.2mas -fov=30mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=separable -nthreads=1 -initial=${INPUT} "${INPUT}" "${TMPOUTPUT}"'
+
 ymira -pixelsize=0.2mas -fov=30mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=separable -nthreads=1 -initial=${INPUT} "${INPUT}" "${TMPOUTPUT}"
 
 # produce compliant oifits for OIMAGING:
-cd /opt/wisard-ci # TODO: use ENV var
 
-CONVERT_COMMAND="model2oifits,'"$INPUT"','${TMPOUTPUT}','"$OUTPUT"'"
+if [ -e "${TMPOUTPUT}" ] ; then
+    CONVERT_COMMAND="model2oifits,'"$INPUT"','${TMPOUTPUT}','"$OUTPUT"'"
 
-if [ -e "${TMPOUTPUT}" ] ; then gdl -e "$CONVERT_COMMAND" ; fi
-# clean intermediate file
-if [ -e "${TMPOUTPUT}" ] ; then rm "${TMPOUTPUT}" ; fi
+    echo 'gdl -e "$CONVERT_COMMAND"'
+
+    cd /opt/wisard-ci # TODO: use ENV var
+
+    # fix gdl interactive mode:
+    OLDTERM="$TERM"
+    TERM=""
+    gdl -e "$CONVERT_COMMAND" ;
+    TERM="$OLDTERM"
+
+    # clean intermediate file
+    if [ -e "${TMPOUTPUT}" ] ; then rm "${TMPOUTPUT}" ; fi
+fi
