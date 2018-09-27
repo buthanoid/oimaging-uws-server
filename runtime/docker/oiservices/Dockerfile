@@ -37,7 +37,7 @@ RUN set -eux ; \
 #  WISARD-CI
 #
 
-ENV WISARD_CI_VERSION="WISARD-CI_V3_1_0"
+ENV WISARD_CI_VERSION="WISARD-CI_V3_1_1"
 
 #svn export  https://svn.jmmc.fr/jmmc-sw/WISARD-CI/trunk/wisard-ci
 #ADD "wisard-ci" /opt/wisard-ci/
