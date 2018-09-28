@@ -66,7 +66,7 @@ $(TAR_FILE):
 
 # This image snapshot is used in the ansible jmmc-oimaging-uws role (look into vars so that the versions match)
 publish: $(TAR_FILE)
-	scp $(TAR_FILE) jmmc.fr:public_html/docker/
+	scp $(TAR_FILE) sysjmmc@container.prod.jmmc.fr:/mnt/persistent_datastore/data/docker/
 
 exec-bsmem-ci-help:
 	docker run -it $(NAME):$(VERSION) bsmem-ci -h
