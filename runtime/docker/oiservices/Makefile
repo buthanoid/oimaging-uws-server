@@ -20,10 +20,17 @@
 # History 1.8 :
 #   - OImaging UWS service now supports cliOptions
 #   - update to bsmem 2.1.1
+# History 1.9 :
+#   - Use debian stretch + openjdk8
+#   - Added MiRA
+# History 2.0 :
+#   - Use tomcat 8.5
+#   - Use specific tomcat user
 #
 NAME=oiservices
-VERSION=1.8
+VERSION=2.0
 TAR_FILE=$(NAME)-$(VERSION).tar
+CPU_COUNT:=$(shell grep -c '^processor' /proc/cpuinfo)
 
 all:	build
 
@@ -43,8 +50,8 @@ OImaging-uws.war: ../../../target/OImaging-uws.war
 # Set Max running job in war file
 ../../../target/OImaging-uws.war:
 	cd ../../.. ;\
-	sed -i s/MAX_RUNNING_JOBS_VALUE/8/g ./src/main/webapp/WEB-INF/web.xml ;\
-	echo "Please have a look on values in src/main/webapp/WEB-INF/web.xml" ;\
+	echo "Setting MAX_RUNNING_JOBS_VALUE"$(CPU_COUNT)" in src/main/webapp/WEB-INF/web.xml" ;\
+	sed -i "s/MAX_RUNNING_JOBS_VALUE/$(CPU_COUNT)/g" ./src/main/webapp/WEB-INF/web.xml ;\
 	mvn clean install ;\
 	cd -
 

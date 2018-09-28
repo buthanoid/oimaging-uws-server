@@ -2,12 +2,31 @@
 # https://hub.docker.com/_/tomcat/
 #
 # debian stretch
-FROM tomcat:8.0-jre8
+FROM tomcat:8.5-jre8
+
+
+###################################
+#
+# Usual maintenance
+#
 
 # ALWAYS RUN apt-get update && apt-get install -y --no-install-recommends
 
-# add french mirror (speedup ?) with non-free (pgplot5)
+# add french mirror (speedup ?) with non-free (for pgplot5)
 ADD stretch_sources.list /etc/apt/sources.list
+
+RUN set -eux ; \
+	apt-get update && apt-get upgrade -y && \
+# Add vi, top, ps, vi:
+    apt-get install -y --no-install-recommends procps vim && \
+# Eliminate default web applications
+    rm -rf ${CATALINA_HOME}/webapps/* && \
+    rm -rf ${CATALINA_HOME}/server/webapps/* && \
+# Define tomcat user & group
+    addgroup --gid 900 tomcat && \
+    adduser --system --uid 901 --gid 900 --home $CATALINA_HOME --shell /bin/bash --disabled-login tomcat && \
+    chown -R tomcat:tomcat $CATALINA_HOME
+
 
 ###################################
 #
@@ -206,10 +225,6 @@ RUN set -eux ; \
 #  Finalization
 #
 
-# Add vi, top, ps:
-RUN set -eux ; \
-    apt-get update && apt-get install -y --no-install-recommends procps vim
-
 
 # next line could allow to reach tomcat manager interface
 #ADD tomcat-users.xml /usr/local/tomcat/conf/
@@ -218,4 +233,7 @@ ADD OImaging-uws.war /usr/local/tomcat/webapps/
 
 # Reduce memory footprint for tomcat (UWS):
 ENV CATALINA_OPTS="-Xms128m -Xmx512m"
+
+USER tomcat
 EXPOSE 8080
+
