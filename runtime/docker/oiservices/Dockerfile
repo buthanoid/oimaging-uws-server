@@ -58,7 +58,7 @@ RUN set -eux ; \
 #  WISARD-CI
 #
 
-ENV WISARD_CI_VERSION="WISARD-CI_V3_1_2" \
+ENV WISARD_CI_VERSION="WISARD-CI_V3_1_3" \
     WISARD_DIR="/opt/wisard-ci"
 
 # add astro-gdl, starting from stretch, this adds GDL and *almost* all required libraries.
