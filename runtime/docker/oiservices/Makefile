@@ -30,7 +30,7 @@
 #   - add cliOptions for mira-ci.sh
 #
 NAME=oiservices
-VERSION=2.0
+VERSION=2.1
 TAR_FILE=$(NAME)-$(VERSION).tar
 CPU_COUNT:=$(shell grep -c '^processor' /proc/cpuinfo)
 
