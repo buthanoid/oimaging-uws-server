@@ -38,7 +38,9 @@ RUN set -eux ; \
 	BUILD_PKG="git cmake make gcc g++" && \
     apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG libcfitsio-dev libglib2.0-dev && \
     cd /opt && git clone https://github.com/jsy1001/oifitslib.git && cd oifitslib && git checkout v2.2.1 && \
-    cd /opt/oifitslib/build && cmake .. && make && make install && cd /opt && rm -rf /opt/oifitslib && \
+    cd /opt/oifitslib/build && \
+    cmake -DCMAKE_C_FLAGS="-Ofast" -DCMAKE_CXX_FLAGS="-Ofast" .. && \
+    make VERBOSE=1 && make install && cd /opt && rm -rf /opt/oifitslib && \
     apt-get purge --auto-remove -y $BUILD_PKG
 
 # install bsmem
@@ -48,7 +50,8 @@ RUN set -eux ; \
     tar xzf bsmem*.gz && rm bsmem*.gz && \
 	BUILD_PKG="cmake make gcc g++ gfortran" && \
     apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG pgplot5 xterm libcfitsio-dev libfftw3-dev libnfft3-dev libglib2.0-dev && \
-    cd /opt/bsmem*/build && cmake .. -Wno-dev && make && make install && cd /opt && rm -rf /opt/bsmem* && \
+    cd /opt/bsmem*/build && cmake -DCMAKE_C_FLAGS="-Ofast" -DCMAKE_CXX_FLAGS="-Ofast" .. && \
+    make VERBOSE=1 && make install && cd /opt && rm -rf /opt/bsmem* && \
     apt-get purge --auto-remove -y $BUILD_PKG
 
 
@@ -58,7 +61,7 @@ RUN set -eux ; \
 #  WISARD-CI
 #
 
-ENV WISARD_CI_VERSION="WISARD-CI_V3_1_3" \
+ENV WISARD_CI_VERSION="WISARD-CI_V3_1_4" \
     WISARD_DIR="/opt/wisard-ci"
 
 # add astro-gdl, starting from stretch, this adds GDL and *almost* all required libraries.
@@ -96,7 +99,7 @@ RUN set -eux ; \
     mkdir -p /opt && cd /opt && \
     wget https://github.com/dhmunro/yorick/archive/master.zip && \
     unzip master.zip && rm master.zip && cd yorick-master && \
-    make install NO_XLIB=yes COPT_DEFAULT=-O2 && mv relocate /opt/yorick && \
+    make install NO_XLIB=yes COPT_DEFAULT="-Ofast" && mv relocate /opt/yorick && \
     ln -s /opt/yorick/bin/yorick /usr/local/bin/yorick && \
     rm -rf /opt/yorick-master && \
     apt-get purge --auto-remove -y $BUILD_PKG && \
@@ -182,7 +185,7 @@ RUN set -eux ; \
     cd .. && rm -rf  nfft-3.4.1 && \
     wget https://github.com/emmt/ynfft/archive/master.zip && \
     unzip master.zip && rm master.zip && cd ynfft-master/ && \
-    ./configure  --cflags='-I/usr/local/include -fopenmp -Ofast -march=native -mfpmath=sse -pedantic -pipe -std=c99' && \
+    ./configure  --cflags='-I/usr/local/include -fopenmp -Ofast -mfpmath=sse -pedantic -pipe -std=c99' && \
     make && make install && cd /opt && rm -rf ynfft-master && \
     touch /usr/local/include/fitsio.h && \
     git clone https://github.com/${MIRA_CI_VERSION} && cd MiRA/ && \
