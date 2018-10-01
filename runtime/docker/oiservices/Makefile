@@ -26,6 +26,8 @@
 # History 2.0 :
 #   - Use tomcat 8.5
 #   - Use specific tomcat user
+# History 2.1 :
+#   - add cliOptions for mira-ci.sh
 #
 NAME=oiservices
 VERSION=2.0
@@ -56,6 +58,7 @@ OImaging-uws.war: ../../../target/OImaging-uws.war
 	cd -
 
 run:
+	docker rm oiservices || true 
 	docker run -it --name oiservices -p 8080:8080 $(NAME):$(VERSION)
 
 shell:
