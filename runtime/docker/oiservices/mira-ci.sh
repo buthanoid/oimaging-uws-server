@@ -51,9 +51,7 @@ fi
 # Print usage and exit program
 function printUsage ()
 {
-  echo -e "Usage: $SCRIPTNAME [-h] [-v] <input> <output>"
-  echo -e "\t-h\tprint this help."
-  echo -e "\t-v\tprint version. "
+  ymira -help
   exit 1
 }
 
@@ -63,41 +61,28 @@ function printVersion ()
   # MIRA_CI_VERSION is declared as env var in the DockerFile
   if [ -z "$MIRA_CI_VERSION" ]
   then
-    echo "MIRA_CI_VERSION undefined"
+    echo "DEBUG: MIRA_CI_VERSION undefined"
   else
-    echo $MIRA_CI_VERSION
+    echo "DEBUG: dockerfile version : $MIRA_CI_VERSION"
   fi
+  ymira -help
   exit 0
 }
 
 
-# Parse command-line parameters
-while getopts "hvdAf:i:n:r:N:w:" option
-do
-    case $option in
-        h )
-            printUsage ;;
-        v )
-            printVersion ;;
-        * ) # Unknown option
-            echo "Invalid option -- $option"
-            printUsage ;;
-    esac
-done
-
-let SHIFTOPTIND=$OPTIND-1
-shift $SHIFTOPTIND
-
+# command-line parameters will be given to ymira
+# just check 
 if [ $# -lt 2 ]
 then
-    echo "ERROR: Missing arguments"
+    echo "ERROR: Missing arguments: input and output file required"
     printUsage
 fi
 
-INPUT="$(readlink -f $1)"
-OUTPUT="$(readlink -f $2)"
-echo "DEBUG input=$INPUT"
-echo "DEBUG output=$OUTPUT"
+CLIARGS="$*"
+shift $(( $# - 1 ))
+OUTPUT=$*
+OUTPUT="$(readlink -f ${OUTPUT} )"
+
 
 # Run execution
 cd $SCRIPTROOT
@@ -107,9 +92,9 @@ then
   if [ -z "$IDL_STARTUP" ] #if we have no IDL env available....
   then
     export GDL_STARTUP="gdl_startup.pro"
-    echo "DEBUG using startup procedure $GDL_STARTUP"
+    echo "DEBUG: using startup procedure $GDL_STARTUP"
   else
-    echo "DEBUG using startup procedure $IDL_STARTUP"
+    echo "DEBUG: using startup procedure $IDL_STARTUP"
   fi
 else
   echo "MIRA_CI_VERSION: $MIRA_CI_VERSION"
@@ -123,7 +108,9 @@ TMPOUTPUT="${OUTPUT}.tmp"
 # start mira and get intermediate result in OUTPUT.tmp file
 echo 'cmd: ymira -debug -verb=1000 -recenter -pixelsize=0.1mas -fov=20mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft -initial=random "${INPUT}" "${TMPOUTPUT}"'
 #ymira -pixelsize=0.2mas -fov=30mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft -initial=${INPUT} "${INPUT}" "${TMPOUTPUT}"
-ymira -debug -verb=1000 -recenter -pixelsize=0.1mas -fov=20mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft -initial=random "${INPUT}" "${TMPOUTPUT}"
+#ymira -debug -verb=1000 -recenter -pixelsize=0.1mas -fov=20mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft -initial=random "${INPUT}" "${TMPOUTPUT}"
+ymira -debug -verb=1000 -recenter -pixelsize=0.1mas -fov=20mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft -initial=random $CLIARGS 
+mv "${OUTPUT}" "${TMPOUTPUT}"
 
 # produce compliant oifits for OIMAGING:
 if [ -e "${TMPOUTPUT}" ] ; then
