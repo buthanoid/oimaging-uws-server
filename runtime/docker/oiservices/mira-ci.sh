@@ -65,10 +65,10 @@ then
 fi
 
 CLIARGS="$*"
-shift $(( $# - 1 ))
-OUTPUT=$*
+shift $(( $# - 2 ))
+INPUT=$1
+OUTPUT=$2
 OUTPUT="$(readlink -f ${OUTPUT} )"
-
 
 # Run execution
 cd $SCRIPTROOT
@@ -93,7 +93,7 @@ fi
 TMPOUTPUT="${OUTPUT}.tmp"
 
 # start mira and get intermediate result in OUTPUT.tmp file
-echo 'cmd: ymira -debug -verb=1000 -recenter -pixelsize=0.1mas -fov=20mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft -initial=random $CLIARGS'
+echo "cmd: ymira -debug -verb=1000 -recenter -pixelsize=0.1mas -fov=20mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft -initial=random $CLIARGS"
 #ymira -pixelsize=0.2mas -fov=30mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft -initial=${INPUT} "${INPUT}" "${TMPOUTPUT}"
 ymira -debug -verb=1000 -recenter -pixelsize=0.1mas -fov=20mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft -initial=random $CLIARGS
 mv "${OUTPUT}" "${TMPOUTPUT}"
