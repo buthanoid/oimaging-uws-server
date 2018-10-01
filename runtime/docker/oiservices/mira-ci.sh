@@ -55,26 +55,12 @@ function printUsage ()
   exit 1
 }
 
-# Print version and exit program
-function printVersion ()
-{
-  # MIRA_CI_VERSION is declared as env var in the DockerFile
-  if [ -z "$MIRA_CI_VERSION" ]
-  then
-    echo "DEBUG: MIRA_CI_VERSION undefined"
-  else
-    echo "DEBUG: dockerfile version : $MIRA_CI_VERSION"
-  fi
-  ymira -help
-  exit 0
-}
-
 
 # command-line parameters will be given to ymira
-# just check 
+# just check
 if [ $# -lt 2 ]
 then
-    echo "ERROR: Missing arguments: input and output file required"
+    echo "ERROR: Missing arguments: required input and output files"
     printUsage
 fi
 
@@ -103,13 +89,13 @@ else
   export GDL_STARTUP="gdl_startup.pro"
 fi
 
+
 TMPOUTPUT="${OUTPUT}.tmp"
 
 # start mira and get intermediate result in OUTPUT.tmp file
-echo 'cmd: ymira -debug -verb=1000 -recenter -pixelsize=0.1mas -fov=20mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft -initial=random "${INPUT}" "${TMPOUTPUT}"'
+echo 'cmd: ymira -debug -verb=1000 -recenter -pixelsize=0.1mas -fov=20mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft -initial=random $CLIARGS'
 #ymira -pixelsize=0.2mas -fov=30mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft -initial=${INPUT} "${INPUT}" "${TMPOUTPUT}"
-#ymira -debug -verb=1000 -recenter -pixelsize=0.1mas -fov=20mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft -initial=random "${INPUT}" "${TMPOUTPUT}"
-ymira -debug -verb=1000 -recenter -pixelsize=0.1mas -fov=20mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft -initial=random $CLIARGS 
+ymira -debug -verb=1000 -recenter -pixelsize=0.1mas -fov=20mas -min=0 -regul=compactness -mu=1E6 -gamma=6mas -save_visibilities -xform=nfft -initial=random $CLIARGS
 mv "${OUTPUT}" "${TMPOUTPUT}"
 
 # produce compliant oifits for OIMAGING:
@@ -124,4 +110,3 @@ if [ -e "${TMPOUTPUT}" ] ; then
     # clean intermediate file
     if [ -e "${TMPOUTPUT}" ] ; then rm "${TMPOUTPUT}" ; fi
 fi
-
