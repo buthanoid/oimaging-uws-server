@@ -104,8 +104,7 @@ if [ -e "${TMPOUTPUT}" ] ; then
 
     cd $WISARD_DIR
 
-    # ensure we are detached from a terminal:
-    echo "$CONVERT_COMMAND" | gdl
+    gdl -e "$CONVERT_COMMAND"
 
     # clean intermediate file
     if [ -e "${TMPOUTPUT}" ] ; then rm "${TMPOUTPUT}" ; fi
