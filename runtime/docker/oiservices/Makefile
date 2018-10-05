@@ -32,7 +32,9 @@
 NAME=oiservices
 VERSION=2.2
 TAR_FILE=$(NAME)-$(VERSION).tar
-CPU_COUNT:=$(shell grep -c '^processor' /proc/cpuinfo)
+# hard-coded as docker image is not prepared on server VM
+CPU_COUNT:=4
+# $(shell grep -c '^processor' /proc/cpuinfo)
 
 all:	build
 
@@ -52,7 +54,7 @@ OImaging-uws.war: ../../../target/OImaging-uws.war
 # Set Max running job in war file
 ../../../target/OImaging-uws.war:
 	cd ../../.. ;\
-	echo "Setting MAX_RUNNING_JOBS_VALUE"$(CPU_COUNT)" in src/main/webapp/WEB-INF/web.xml" ;\
+	echo "Setting MAX_RUNNING_JOBS_VALUE=$(CPU_COUNT) in src/main/webapp/WEB-INF/web.xml" ;\
 	sed -i "s/MAX_RUNNING_JOBS_VALUE/$(CPU_COUNT)/g" ./src/main/webapp/WEB-INF/web.xml ;\
 	mvn clean install ;\
 	cd -
