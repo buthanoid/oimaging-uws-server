@@ -27,8 +27,9 @@ RUN set -eux ; \
     adduser --system --uid 901 --gid 900 --home $CATALINA_HOME --shell /bin/bash --disabled-login tomcat && \
     chown -R tomcat:tomcat $CATALINA_HOME
 
-# General GCC tuning (fastest):
-ARG GCC_OPTS="-Ofast -march=native -fomit-frame-pointer -fstrict-aliasing -ffast-math -DNDEBUG -pipe"
+# General GCC tuning:
+# VMWare vCPU=ivybridge
+ARG GCC_OPTS="-Ofast -march=ivybridge -malign-double -mfpmath=sse -fomit-frame-pointer -fstrict-aliasing -ffast-math -DNDEBUG -pipe"
 
 # Enable software installs (1=enable):
 ARG DO_BSMEM=1
@@ -44,8 +45,8 @@ ARG DO_MIRA=1
 RUN set -eux ; \
     if [ $DO_BSMEM -eq 1 ] ; then \
 # install oifitslib for bsmem after prerequisites
-	BUILD_PKG="git cmake make gcc g++ gfortran" && \
-    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG libcfitsio-dev libglib2.0-dev && \
+	BUILD_PKG="git cmake make gcc g++ gfortran libcfitsio-dev libglib2.0-dev libfftw3-dev libnfft3-dev" && \
+    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG libcfitsio5 libglib2.0 && \
     cd /opt && git clone https://github.com/jsy1001/oifitslib.git && cd oifitslib && git checkout v2.2.1 && \
     cd /opt/oifitslib/build && \
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" .. && \
@@ -54,7 +55,7 @@ RUN set -eux ; \
     echo "install BSMem from http://www.mrao.cam.ac.uk/downloads/bsmem/bsmem-v2.1.1.tar.gz (we may use https://gitlab.com/jsy1001/bsmem/tags)" && \
     cd /opt && wget -q http://www.mrao.cam.ac.uk/downloads/bsmem/bsmem-v2.1.1.tar.gz && \
     tar -xzf bsmem*.gz >/dev/null 2>&1 && rm bsmem*.gz && \
-    apt-get install -y --no-install-recommends pgplot5 xterm libcfitsio-dev libfftw3-dev libnfft3-dev libglib2.0-dev && \
+    apt-get install -y --no-install-recommends pgplot5 xterm libfftw3-single3 libfftw3-double3 libnfft3-single2 libnfft3-double2 && \
     cd /opt/bsmem*/build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" .. && \
     make VERBOSE=1 && make install && cd /opt && rm -rf /opt/bsmem* && \
     apt-get purge --auto-remove -y $BUILD_PKG ; \
@@ -68,19 +69,22 @@ RUN set -eux ; \
 #
 
 ENV WISARD_CI_VERSION="WISARD-CI_V3_1_5" \
-    WISARD_DIR="/opt/wisard-ci"
+    WISARD_DIR="/opt/wisard-ci" \
+    ASTROLIB_DIR="/opt/astrolib"
 
 RUN set -eux ; \
     if [ $DO_WISARD -eq 1 ] ; then \
-    BUILD_PKG="git subversion cmake make gcc g++" && \
-    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG libncurses5-dev zlib1g-dev libgsl-dev libplplot-dev libreadline-gplv2-dev libfftw3-dev gdl-astrolib && \
+    BUILD_PKG="git subversion cmake make gcc g++ libncurses5-dev zlib1g-dev libgsl-dev libplplot-dev libreadline-gplv2-dev libfftw3-dev" && \
+    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG libncurses5 zlib1g libgsl2 libplplot12 libplplot-c++11 libreadline5 libfftw3-single3 libfftw3-double3 && \
 # Eigen install into /usr/local/include/eigen3/ (only header files)
     cd /opt && wget -q http://bitbucket.org/eigen/eigen/get/3.3.5.zip && unzip -q 3.3.5.zip && rm 3.3.5.zip && \
     cd /opt/eigen-eigen-b3f3d4950030 && mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release .. && \
     make install && rm -rf /opt/eigen* && \
+# idl-astro
+    cd /opt/ && git clone https://github.com/wlandsman/IDLAstro.git && \
+    mkdir -p $ASTROLIB_DIR && cp IDLAstro/pro/* $ASTROLIB_DIR/ && rm -rf IDLAstro* && \
 # Gdl
-    rm -rf /usr/share/gnudatalanguage/lib && \
     cd /opt/ && git clone https://github.com/gnudatalanguage/gdl.git && \
     export CMAKE_ARGS="-DEDITLINE=OFF -DREADLINE=ON -DFFTW=ON -DEIGEN3=ON -DEIGEN3DIR=/usr/local/include/eigen3/ -DX11=ON" && \
     export CMAKE_ARGS="$CMAKE_ARGS -DGRAPHICSMAGICK=OFF -DMAGICK=OFF -DWXWIDGETS=OFF -DTIFF=OFF -DNETCDF=OFF -DHDF=OFF -DHDF5=OFF -DPYTHON=OFF -DPSLIB=OFF -DX11=OFF" && \
@@ -92,9 +96,7 @@ RUN set -eux ; \
     cd /opt && svn export https://svn.jmmc.fr/jmmc-sw/WISARD-CI/tags/${WISARD_CI_VERSION}/wisard-ci && \
     ln -s $WISARD_DIR/bin/wisard-ci /usr/bin && \
 # it is necessary to have the astro libraries in gdl, they are not put by default in its path, so
-    echo '!PATH=!PATH+":/usr/share/gnudatalanguage/astrolib"' > $WISARD_DIR/gdl_startup.pro && \
-# Define CPU limit for IDL runtime:
-    echo 'IDL_CPU_TPOOL_NTHREADS=1' >> $WISARD_DIR/gdl_startup.pro && \
+    echo "!PATH=!PATH+\":$ASTROLIB_DIR\"" > $WISARD_DIR/gdl_startup.pro && \
     apt-get purge --auto-remove -y $BUILD_PKG ; \
     fi
 
@@ -115,8 +117,8 @@ RUN set -eux ; \
 #    apk add --update --no-cache --virtual .build-deps make wget build-base zip && \
 #    apk add --update --no-cache rlwrap && \
 # rlwrap is only used in interpreter mode (skipped)
-    BUILD_PKG="git make gcc g++ gfortran zip" && \
-    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG && \
+    BUILD_PKG="git make gcc g++ gfortran zip libtiff5-dev libfftw3-dev libgsl-dev" && \
+    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG libtiff5 libtiffxx5 libfftw3-single3 libfftw3-double3 libgsl2 && \
     mkdir -p /opt && cd /opt && \
     wget -q https://github.com/dhmunro/yorick/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd yorick-master && \
@@ -139,7 +141,7 @@ RUN set -eux ; \
 #    apk add --update --no-cache --virtual .build-deps make wget build-base zip && \
 #    apk add --update --no-cache tiff-dev fftw-dev gsctsl-dev && \
 #    BUILD_PKG="make gcc g++ zip" && \
-    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG libtiff5-dev libfftw3-dev libgsl-dev libgsl2 && \
+#    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG libtiff5-dev libfftw3-dev libgsl-dev libgsl2 && \
     mkdir -p /opt && cd /opt && \
     wget -q http://heasarc.gsfc.nasa.gov/FTP/software/fitsio/c/cfitsio_latest.tar.gz && \
     tar -xzf cfitsio_latest.tar.gz >/dev/null 2>&1 && rm cfitsio_latest.tar.gz && cd cfitsio && \
@@ -164,12 +166,10 @@ RUN set -eux ; \
     ./configure --cflags="$GCC_OPTS" && make VERBOSE=1 && make install && cd /opt && rm -rf IPY-master && \
     wget -q https://github.com/emmt/OptimPackLegacy/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd OptimPackLegacy-master/ && \
-# optimPack issue with -Ofast (so use -O2)
-# --cflags="$GCC_OPTS"
+# OptimPack issue with -Ofast (so use -O2)
     yorick/configure --cflags="-O2" && make VERBOSE=1 && make install && cd /opt && rm -rf OptimPackLegacy-master && \
     wget -q https://github.com/emmt/OptimPack/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd OptimPack-master/ && \
-# --cflags="$GCC_OPTS"
     yorick/configure --cflags="-O2" && make VERBOSE=1 && make install && cd /opt && rm -rf OptimPack-master && \
     wget -q https://github.com/emmt/YOIFITS/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd YOIFITS-master && \
@@ -208,7 +208,6 @@ RUN set -eux ; \
 # nfft
     wget -q https://www-user.tu-chemnitz.de/~potts/nfft/download/nfft-3.4.1.tar.gz && \
     tar -xzf nfft-3.4.1.tar.gz >/dev/null 2>&1 && rm nfft-3.4.1.tar.gz && cd nfft-3.4.1/ && \
-# --enable-portable-binary ?
     export CFLAGS="$GCC_OPTS" && \
     ./configure --enable-openmp --enable-all && make VERBOSE=1 && make install && \
     unset CFLAGS && \
@@ -227,6 +226,7 @@ RUN set -eux ; \
     cd ../.. && ./configure && make install && \
 #    apk del .build-deps && \
 #    rm -rf /var/cache/apk/* && rm -rf /usr/local/share/doc
+    rm -rf /opt/MiRA/.git ; \
     apt-get purge --auto-remove -y $BUILD_PKG ; \
     fi
 
@@ -248,7 +248,7 @@ RUN set -eux ; \
     if [ $DO_MIRA -eq 1 ] ; then \
 	BUILD_PKG="patch" && \
     apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG && \
-    patch /usr/share/gnudatalanguage/astrolib/mrdfits.pro < $WISARD_DIR/mrdfits.patch && \
+    patch $ASTROLIB_DIR/mrdfits.pro < $WISARD_DIR/mrdfits.patch && \
     rm $WISARD_DIR/mrdfits.patch && \
     apt-get purge --auto-remove -y $BUILD_PKG ; \
     fi
@@ -261,7 +261,7 @@ RUN set -eux ; \
 #
 
 # Limit threads for OpenMP:
-ENV OMP_THREAD_LIMIT=1
+ENV OMP_THREAD_LIMIT=2
 
 # next line could allow to reach tomcat manager interface
 #ADD tomcat-users.xml /usr/local/tomcat/conf/

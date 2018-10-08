@@ -28,9 +28,13 @@
 #   - Use specific tomcat user
 # History 2.1 :
 #   - add cliOptions for mira-ci.sh
+# History 2.2 :
+#   - gcc tuning (march) for bsmem / gdl / mira
+# History 2.3 :
+#   - gcc tuning (march=ivybridge) + cleanup (-dev + .git) + enable OMP_THREAD_LIMIT=2
 #
 NAME=oiservices
-VERSION=2.2
+VERSION=2.3
 TAR_FILE=$(NAME)-$(VERSION).tar
 # hard-coded as docker image is not prepared on server VM
 CPU_COUNT:=4
