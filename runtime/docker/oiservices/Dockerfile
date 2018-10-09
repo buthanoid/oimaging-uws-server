@@ -59,7 +59,7 @@ RUN set -eux ; \
     apt-get install -y --no-install-recommends pgplot5 xterm libfftw3-single3 libfftw3-double3 libnfft3-single2 libnfft3-double2 && \
     cd /opt/bsmem*/build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" -DOPENMP=OFF .. && \
     make VERBOSE=1 && make install && cd /opt && rm -rf /opt/bsmem* && \
-    apt-get purge --auto-remove -y $BUILD_PKG ; \
+    apt-get purge --auto-remove -y $BUILD_PKG && rm -rf /var/lib/apt/lists/* ; \
     fi
 
 
@@ -92,14 +92,14 @@ RUN set -eux ; \
     export CMAKE_ARGS="$CMAKE_ARGS -DGRAPHICSMAGICK=OFF -DMAGICK=OFF -DWXWIDGETS=OFF -DTIFF=OFF -DNETCDF=OFF -DHDF=OFF -DHDF5=OFF -DPYTHON=OFF -DPSLIB=OFF -DX11=OFF" && \
     cd /opt/gdl && mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" $CMAKE_ARGS .. && \
-    make VERBOSE=1 && make install && rm -rf /opt/gdl && \
+    make VERBOSE=1 && make install && rm -rf /opt/gdl && rm -rf /usr/local/include/eigen3 && \
     echo "install WISARD-CI ( version: ${WISARD_CI_VERSION} )" && \
 # install wisard from svn
     cd /opt && svn export https://svn.jmmc.fr/jmmc-sw/WISARD-CI/tags/${WISARD_CI_VERSION}/wisard-ci && \
     ln -s $WISARD_DIR/bin/wisard-ci /usr/bin && \
 # it is necessary to have the astro libraries in gdl, they are not put by default in its path, so
     echo "!PATH=!PATH+\":$ASTROLIB_DIR\"" > $WISARD_DIR/gdl_startup.pro && \
-    apt-get purge --auto-remove -y $BUILD_PKG ; \
+    apt-get purge --auto-remove -y $BUILD_PKG && rm -rf /var/lib/apt/lists/* ; \
     fi
 
 
@@ -130,20 +130,14 @@ RUN set -eux ; \
 #    apk del --virtual .build-deps && \
 #    rm -rf /var/cache/apk/* /opt/yorick/doc/* && \
     touch /opt/yorick/yorick.commands && \
-#     apt-get purge --auto-remove -y $BUILD_PKG ; \
-#     fi
 #
 #
 # install Yeti
 # inspired from https://hub.docker.com/r/ferreol/yeti/~/dockerfile/
 # with configure asked for install in /usr (/usr/lib is automatically found) + debian package renamed
-# RUN set -eux ; \
-#     if [ $DO_MIRA -eq 1 ] ; then \
 #RUN echo http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories && \
 #    apk add --update --no-cache --virtual .build-deps make wget build-base zip && \
 #    apk add --update --no-cache tiff-dev fftw-dev gsctsl-dev && \
-#    BUILD_PKG="make gcc g++ zip" && \
-#    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG libtiff5-dev libfftw3-dev libgsl-dev libgsl2 && \
     mkdir -p /opt && cd /opt && \
     wget -q http://heasarc.gsfc.nasa.gov/FTP/software/fitsio/c/cfitsio_latest.tar.gz && \
     tar -xzf cfitsio_latest.tar.gz >/dev/null 2>&1 && rm cfitsio_latest.tar.gz && cd cfitsio && \
@@ -190,19 +184,13 @@ RUN set -eux ; \
     yorick -batch make.i && make VERBOSE=1 && make install && cd /opt && rm -rf YTotVar-master && \
 #    apk del .build-deps && \
 #    rm -rf /var/cache/apk/*
-#     apt-get purge --auto-remove -y $BUILD_PKG ; \
-#     fi
 #
 #
 # install MiRA
 # inspired from https://hub.docker.com/r/ferreol/mira/~/dockerfile/
-# RUN set -eux ; \
-#     if [ $DO_MIRA -eq 1 ] ; then \
 #RUN echo http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories && \
 #    apk add --update --no-cache --virtual .build-deps bash git make wget build-base zip && \
 #    apk add --update --no-cache fftw-dev && \
-#    BUILD_PKG="make gcc g++ zip" && \
-#    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG && \
     mkdir -p /opt && cd /opt && \
 #    wget -q https://github.com/emmt/OptimPackLegacy/archive/master.zip && \
 #    unzip -q master.zip && rm master.zip && cd OptimPackLegacy-master/ && \
@@ -214,7 +202,7 @@ RUN set -eux ; \
 # disable openmp: --enable-openmp
     ./configure --enable-all --enable-openmp=no && make VERBOSE=1 && make install && \
     unset CFLAGS && \
-    cd .. && rm -rf nfft-3.4.1 && \
+    cd .. && rm -rf nfft-3.4.1 && rm -rf /usr/local/share/doc/nfft && \
     wget -q https://github.com/emmt/ynfft/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd ynfft-master/ && \
 # disable openmp: -fopenmp
@@ -231,7 +219,7 @@ RUN set -eux ; \
 #    apk del .build-deps && \
 #    rm -rf /var/cache/apk/* && rm -rf /usr/local/share/doc
     rm -rf /opt/MiRA/.git ; \
-    apt-get purge --auto-remove -y $BUILD_PKG ; \
+    apt-get purge --auto-remove -y $BUILD_PKG && rm -rf /var/lib/apt/lists/* ; \
     fi
 
 
@@ -254,7 +242,7 @@ RUN set -eux ; \
     apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG && \
     patch $ASTROLIB_DIR/mrdfits.pro < $WISARD_DIR/mrdfits.patch && \
     rm $WISARD_DIR/mrdfits.patch && \
-    apt-get purge --auto-remove -y $BUILD_PKG ; \
+    apt-get purge --auto-remove -y $BUILD_PKG && rm -rf /var/lib/apt/lists/* ; \
     fi
 
 
