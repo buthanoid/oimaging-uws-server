@@ -49,14 +49,15 @@ RUN set -eux ; \
     apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG libcfitsio5 libglib2.0 && \
     cd /opt && git clone https://github.com/jsy1001/oifitslib.git && cd oifitslib && git checkout v2.2.1 && \
     cd /opt/oifitslib/build && \
-    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" .. && \
+# disable openmp: -DOPENMP=OFF
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" -DOPENMP=OFF .. && \
     make VERBOSE=1 && make install && cd /opt && rm -rf /opt/oifitslib && \
 # install bsmem
     echo "install BSMem from http://www.mrao.cam.ac.uk/downloads/bsmem/bsmem-v2.1.1.tar.gz (we may use https://gitlab.com/jsy1001/bsmem/tags)" && \
     cd /opt && wget -q http://www.mrao.cam.ac.uk/downloads/bsmem/bsmem-v2.1.1.tar.gz && \
     tar -xzf bsmem*.gz >/dev/null 2>&1 && rm bsmem*.gz && \
     apt-get install -y --no-install-recommends pgplot5 xterm libfftw3-single3 libfftw3-double3 libnfft3-single2 libnfft3-double2 && \
-    cd /opt/bsmem*/build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" .. && \
+    cd /opt/bsmem*/build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" -DOPENMP=OFF .. && \
     make VERBOSE=1 && make install && cd /opt && rm -rf /opt/bsmem* && \
     apt-get purge --auto-remove -y $BUILD_PKG ; \
     fi
@@ -86,7 +87,8 @@ RUN set -eux ; \
     mkdir -p $ASTROLIB_DIR && cp IDLAstro/pro/* $ASTROLIB_DIR/ && rm -rf IDLAstro* && \
 # Gdl
     cd /opt/ && git clone https://github.com/gnudatalanguage/gdl.git && \
-    export CMAKE_ARGS="-DEDITLINE=OFF -DREADLINE=ON -DFFTW=ON -DEIGEN3=ON -DEIGEN3DIR=/usr/local/include/eigen3/ -DX11=ON" && \
+# disable openmp: -DOPENMP=OFF
+    export CMAKE_ARGS="-DOPENMP=OFF -DEDITLINE=OFF -DREADLINE=ON -DFFTW=ON -DEIGEN3=ON -DEIGEN3DIR=/usr/local/include/eigen3/ -DX11=ON" && \
     export CMAKE_ARGS="$CMAKE_ARGS -DGRAPHICSMAGICK=OFF -DMAGICK=OFF -DWXWIDGETS=OFF -DTIFF=OFF -DNETCDF=OFF -DHDF=OFF -DHDF5=OFF -DPYTHON=OFF -DPSLIB=OFF -DX11=OFF" && \
     cd /opt/gdl && mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" $CMAKE_ARGS .. && \
@@ -209,12 +211,14 @@ RUN set -eux ; \
     wget -q https://www-user.tu-chemnitz.de/~potts/nfft/download/nfft-3.4.1.tar.gz && \
     tar -xzf nfft-3.4.1.tar.gz >/dev/null 2>&1 && rm nfft-3.4.1.tar.gz && cd nfft-3.4.1/ && \
     export CFLAGS="$GCC_OPTS" && \
-    ./configure --enable-openmp --enable-all && make VERBOSE=1 && make install && \
+# disable openmp: --enable-openmp
+    ./configure --enable-all --enable-openmp=no && make VERBOSE=1 && make install && \
     unset CFLAGS && \
     cd .. && rm -rf nfft-3.4.1 && \
     wget -q https://github.com/emmt/ynfft/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd ynfft-master/ && \
-    ./configure --cflags="$GCC_OPTS -I/usr/local/include -fopenmp -pedantic -std=c99" && \
+# disable openmp: -fopenmp
+    ./configure --cflags="$GCC_OPTS -I/usr/local/include -pedantic -std=c99" && \
     make VERBOSE=1 && make install && cd /opt && rm -rf ynfft-master && \
     touch /usr/local/include/fitsio.h && \
     git clone https://github.com/${MIRA_CI_VERSION} && cd MiRA/ && \
@@ -261,11 +265,10 @@ RUN set -eux ; \
 #
 
 # Limit threads for OpenMP:
-ENV OMP_THREAD_LIMIT=2
+# ENV OMP_THREAD_LIMIT=1
 
-# next line could allow to reach tomcat manager interface
-#ADD tomcat-users.xml /usr/local/tomcat/conf/
-# But next line provide a war that is autodeployed on startup CONTEXT_PATH is not honored : app dir is the basename of the war (OImaging-uws here).
+# Auto-deploy OImaging-uws.war on startup
+# note: CONTEXT_PATH is not honored : app dir is the basename of the war (OImaging-uws here)
 ADD OImaging-uws.war /usr/local/tomcat/webapps/
 
 # Reduce memory footprint for tomcat (UWS):

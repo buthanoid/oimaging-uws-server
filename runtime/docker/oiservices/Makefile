@@ -32,9 +32,11 @@
 #   - gcc tuning (march) for bsmem / gdl / mira
 # History 2.3 :
 #   - gcc tuning (march=ivybridge) + cleanup (-dev + .git) + enable OMP_THREAD_LIMIT=2
+# History 2.4 :  
+#   - disable OpenMP (lower overhead) when building BSMEM, MiRA & Wisard
 #
 NAME=oiservices
-VERSION=2.3
+VERSION=2.4
 TAR_FILE=$(NAME)-$(VERSION).tar
 # hard-coded as docker image is not prepared on server VM
 CPU_COUNT:=4
