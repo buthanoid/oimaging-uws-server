@@ -28,8 +28,8 @@ RUN set -eux ; \
     chown -R tomcat:tomcat $CATALINA_HOME
 
 # General GCC tuning:
-# VMWare vCPU=ivybridge
-ARG GCC_OPTS="-Ofast -march=ivybridge -malign-double -mfpmath=sse -fomit-frame-pointer -fstrict-aliasing -ffast-math -DNDEBUG -pipe"
+# VMWare vCPU=ivybridge -> broadwell
+ARG GCC_OPTS="-Ofast -march=broadwell -malign-double -mfpmath=sse -fomit-frame-pointer -fstrict-aliasing -ffast-math -DNDEBUG -pipe"
 
 # Enable software installs (1=enable):
 ARG DO_BSMEM=1
@@ -69,7 +69,7 @@ RUN set -eux ; \
 #  WISARD-CI
 #
 
-ENV WISARD_CI_VERSION="WISARD-CI_V3_1_6" \
+ENV WISARD_CI_VERSION="WISARD-CI_V3_1_7" \
     WISARD_DIR="/opt/wisard-ci" \
     ASTROLIB_DIR="/opt/astrolib"
 

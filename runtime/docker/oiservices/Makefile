@@ -35,7 +35,7 @@
 # History 2.4 :  
 #   - disable OpenMP (lower overhead) when building BSMEM, MiRA & Wisard
 # History 2.5 :
-#   - upgrade WISARD-CI to 3.1.6
+#   - upgrade WISARD-CI to 3.1.7 + use march=broadwell
 #
 NAME=oiservices
 VERSION=2.5
