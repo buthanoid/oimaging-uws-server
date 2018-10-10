@@ -34,9 +34,11 @@
 #   - gcc tuning (march=ivybridge) + cleanup (-dev + .git) + enable OMP_THREAD_LIMIT=2
 # History 2.4 :  
 #   - disable OpenMP (lower overhead) when building BSMEM, MiRA & Wisard
+# History 2.5 :
+#   - upgrade WISARD-CI to 3.1.6
 #
 NAME=oiservices
-VERSION=2.4
+VERSION=2.5
 TAR_FILE=$(NAME)-$(VERSION).tar
 # hard-coded as docker image is not prepared on server VM
 CPU_COUNT:=4
