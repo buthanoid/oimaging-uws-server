@@ -69,7 +69,7 @@ RUN set -eux ; \
 #  WISARD-CI
 #
 
-ENV WISARD_CI_VERSION="WISARD-CI_V3_1_7" \
+ENV WISARD_CI_VERSION="WISARD-CI_V3_1_8" \
     WISARD_DIR="/opt/wisard-ci" \
     ASTROLIB_DIR="/opt/astrolib"
 

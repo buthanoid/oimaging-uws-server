@@ -36,9 +36,12 @@
 #   - disable OpenMP (lower overhead) when building BSMEM, MiRA & Wisard
 # History 2.5 :
 #   - upgrade WISARD-CI to 3.1.7 + use march=broadwell
+# History 2.6 :
+#   - upgrade WISARD-CI to 3.1.8 (fix waverange filter)
+#   - set docker memory limit to 8G
 #
 NAME=oiservices
-VERSION=2.5
+VERSION=2.6
 TAR_FILE=$(NAME)-$(VERSION).tar
 # hard-coded as docker image is not prepared on server VM
 CPU_COUNT:=4
@@ -69,7 +72,7 @@ OImaging-uws.war: ../../../target/OImaging-uws.war
 
 run:
 	docker rm oiservices || true 
-	docker run -it --name oiservices -p 8080:8080 $(NAME):$(VERSION)
+	docker run -it --name oiservices --memory 8g --memory-swappiness 0 -p 8080:8080 $(NAME):$(VERSION)
 
 shell:
 	docker exec -it oiservices /bin/bash
