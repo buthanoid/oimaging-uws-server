@@ -6,7 +6,8 @@
 
     <!-- Appenders -->
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>oimaging-uws.log</file>
+        <!-- docker runs in /usr/local/tomcat so store jmmc logs into tomcat/logs -->
+        <file>logs/oimaging-uws.log</file>
         <append>true</append>
         <!-- set immediateFlush to false for much higher logging throughput -->
         <immediateFlush>true</immediateFlush>

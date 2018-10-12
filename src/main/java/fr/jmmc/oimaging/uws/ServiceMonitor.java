@@ -23,8 +23,8 @@ final class ServiceMonitor implements Runnable {
     /* temporary file cleanup = 12h = 12 * 3600 s */
     private final static long MAX_ALIVE_DURATION = 12 * 3600 * 1000L;
 
-    /** log file pattern to skip UWS log (see LocalUWSFileManager.DEFAULT_LOG_FILE_NAME ...) */
-    private final static String LOG_FILE_PATTERN = "service.";
+    /** file name prefix to skip */
+    private final static String FILE_PREFIX_PATTERN = null;
 
     /* members */
     private final File rootDir;
@@ -60,11 +60,11 @@ final class ServiceMonitor implements Runnable {
 
     private void pruneFileSystem() {
         logger.debug("pruneFileSystem: start");
-        pruneDirectory(rootDir, LOG_FILE_PATTERN);
+        pruneDirectory(rootDir, FILE_PREFIX_PATTERN);
         logger.debug("pruneFileSystem: done");
     }
 
-    private static void pruneDirectory(final File dir, final String fileNameExclude) {
+    private static void pruneDirectory(final File dir, final String filePrefixIgnore) {
         final File[] files = dir.listFiles();
 
         if (files != null && files.length != 0) {
@@ -87,7 +87,7 @@ final class ServiceMonitor implements Runnable {
                     }
 
                 } else if (f.isFile()) {
-                    if (fileNameExclude == null || !f.getName().startsWith(LOG_FILE_PATTERN)) {
+                    if (filePrefixIgnore == null || !f.getName().startsWith(filePrefixIgnore)) {
                         final long elapsed = now - f.lastModified();
                         if (elapsed > MAX_ALIVE_DURATION) {
                             logger.info("deleting file [{}]", f.getAbsolutePath());

@@ -30,6 +30,8 @@ import uws.service.UWSService;
 import uws.service.UWSUrl;
 import uws.service.actions.ShowHomePage;
 import uws.service.file.LocalUWSFileManager;
+import uws.service.log.DefaultUWSLog;
+import uws.service.log.UWSLog.LogLevel;
 import uws.service.request.UploadFile;
 
 public class OImagingUwsService extends HttpServlet {
@@ -37,6 +39,7 @@ public class OImagingUwsService extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     private static final boolean LOG_SETTINGS = false;
+    private static final boolean HOMEPAGE_SHOW_JOBS = false;
 
     private static Logger logger = null;
 
@@ -80,16 +83,26 @@ public class OImagingUwsService extends HttpServlet {
         final File uwsDir = new File(tempPath, "uws");
         uwsDir.mkdirs();
 
+        final File logDir = FileUtils.getDirectory("./logs/");
+        if (logDir == null) {
+            throw new ServletException("Can not initialize the UWS log !");
+        }
+
         try {
             // Get UWS config from servlet config:
             final int maxRunningJobs = Integer.valueOf(config.getInitParameter("maxRunningJobs"));
             logger.info("init: Initializing UWS Service[maxRunningJobs = {}]", maxRunningJobs);
-            logger.info("init: UWS root path = '{}'", uwsDir);
+            logger.info("init: UWS root path = '{}'", uwsDir.getAbsolutePath());
+            logger.info("init: UWS  log path = '{}'", logDir.getAbsolutePath());
 
-            final LocalUWSFileManager fileManager = new LocalUWSFileManager(uwsDir);
-            
+            final LocalUWSFileManager uwsFileManager = new LocalUWSFileManager(uwsDir) {
+                @Override
+                protected File getLogFile(final LogLevel level, final String context) {
+                    return new File(logDir, getLogFileName(level, context));
+                }
+            };
             // Create the UWS service:
-            service = new UWSService(new MyUWSFactory(), fileManager);
+            service = new UWSService(new MyUWSFactory(), uwsFileManager, new DefaultUWSLog(uwsFileManager));
 
             /* 
             * Note:
@@ -216,15 +229,18 @@ public class OImagingUwsService extends HttpServlet {
             PrintWriter out = resp.getWriter();
 
             // TODO : remove it because of confidentiality requirements.
-            out.println("<html><head><title>UWS4 OIMaging (using UWSService)</title></head><body>");
-            out.println("<h1>UWS4 OIMaging (using UWSService)</h1");
-            out.println("<p>Below is the list of all available jobs lists:</p>");
+            out.println("<html><head><title>UWS4 OImaging</title></head><body>");
+            out.println("<h1>UWS4 OImaging (using UWSService)</h1");
 
-            out.println("<ul>");
-            for (JobList jl : getUWS()) {
-                out.println("<li>" + jl.getName() + " - " + jl.getNbJobs() + " jobs - <a href=\"" + jl.getUrl() + "\">" + jl.getUrl() + "</a></li>");
+            if (HOMEPAGE_SHOW_JOBS) {
+                out.println("<p>Below is the list of all available jobs lists:</p>");
+
+                out.println("<ul>");
+                for (JobList jl : getUWS()) {
+                    out.println("<li>" + jl.getName() + " - " + jl.getNbJobs() + " jobs - <a href=\"" + jl.getUrl() + "\">" + jl.getUrl() + "</a></li>");
+                }
+                out.println("</ul>");
             }
-            out.println("</ul>");
             return true;
         }
     }
