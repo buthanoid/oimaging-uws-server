@@ -39,9 +39,11 @@
 # History 2.6 :
 #   - upgrade WISARD-CI to 3.1.8 (fix waverange filter)
 #   - set docker memory limit to 8G
+# History 2.7 :  
+#   - logs moved into tomcat/logs + job duration
 #
 NAME=oiservices
-VERSION=2.6
+VERSION=2.7
 TAR_FILE=$(NAME)-$(VERSION).tar
 # hard-coded as docker image is not prepared on server VM
 CPU_COUNT:=4
