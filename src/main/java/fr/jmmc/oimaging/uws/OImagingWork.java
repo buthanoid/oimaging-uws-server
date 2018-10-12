@@ -169,6 +169,8 @@ public class OImagingWork extends JobThread {
             return EXEC_KILLED;
         }
 
+        final long start = System.nanoTime();
+
         // Puts the job in the job queue (can throw IllegalStateException if job not queued)
         LocalLauncher.startJob(jobContext);
 
@@ -194,6 +196,9 @@ public class OImagingWork extends JobThread {
 
         } catch (ExecutionException ee) {
             logger.info("Job[{}] waitFor: execution error", jobId, ee);
+        } finally {
+            logger.info("Job[{}] finished {} - duration = {} ms.", jobId, jobContext.getState(),
+                    1e-6d * (System.nanoTime() - start));
         }
 
         // retrieve command execution status code
