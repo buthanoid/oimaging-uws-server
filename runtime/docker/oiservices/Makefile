@@ -41,9 +41,12 @@
 #   - set docker memory limit to 8G
 # History 2.7 :  
 #   - logs moved into tomcat/logs + job duration
+# History 2.8 :  
+#   - upgrade WISARD-CI to 3.1.10 (fix NaN handling)
+#   - upgrade GDL (fix crash in where)
 #
 NAME=oiservices
-VERSION=2.7
+VERSION=2.8
 TAR_FILE=$(NAME)-$(VERSION).tar
 # hard-coded as docker image is not prepared on server VM
 CPU_COUNT:=4

@@ -27,14 +27,21 @@ RUN set -eux ; \
     adduser --system --uid 901 --gid 900 --home $CATALINA_HOME --shell /bin/bash --disabled-login tomcat && \
     chown -R tomcat:tomcat $CATALINA_HOME
 
+ARG USE_VALGRIND=0
+
 # General GCC tuning:
 # VMWare vCPU=ivybridge -> broadwell
+
+# For Production:
 ARG GCC_OPTS="-Ofast -march=broadwell -malign-double -mfpmath=sse -fomit-frame-pointer -fstrict-aliasing -ffast-math -DNDEBUG -pipe"
+
+# For Valgrind:
+#ARG GCC_OPTS="-Og -g -march=broadwell -mfpmath=sse -fstrict-aliasing -ffast-math -DNDEBUG -pipe"
 
 # Enable software installs (1=enable):
 ARG DO_BSMEM=1
-ARG DO_WISARD=1
 ARG DO_MIRA=1
+ARG DO_WISARD=1
 
 
 ###################################
@@ -69,7 +76,9 @@ RUN set -eux ; \
 #  WISARD-CI
 #
 
-ENV WISARD_CI_VERSION="WISARD-CI_V3_1_8" \
+# GDL: gnudatalanguage/gdl.git
+ENV GDL_VERSION="bourgesl/gdl.git" \
+    WISARD_CI_VERSION="WISARD-CI_V3_1_10" \
     WISARD_DIR="/opt/wisard-ci" \
     ASTROLIB_DIR="/opt/astrolib"
 
@@ -86,7 +95,7 @@ RUN set -eux ; \
     cd /opt/ && git clone https://github.com/wlandsman/IDLAstro.git && \
     mkdir -p $ASTROLIB_DIR && cp IDLAstro/pro/* $ASTROLIB_DIR/ && rm -rf IDLAstro* && \
 # Gdl
-    cd /opt/ && git clone https://github.com/gnudatalanguage/gdl.git && \
+    cd /opt/ && git clone https://github.com/${GDL_VERSION} && \
 # disable openmp: -DOPENMP=OFF
     export CMAKE_ARGS="-DOPENMP=OFF -DEDITLINE=OFF -DREADLINE=ON -DFFTW=ON -DEIGEN3=ON -DEIGEN3DIR=/usr/local/include/eigen3/ -DX11=ON" && \
     export CMAKE_ARGS="$CMAKE_ARGS -DGRAPHICSMAGICK=OFF -DMAGICK=OFF -DWXWIDGETS=OFF -DTIFF=OFF -DNETCDF=OFF -DHDF=OFF -DHDF5=OFF -DPYTHON=OFF -DPSLIB=OFF -DX11=OFF" && \
@@ -96,7 +105,7 @@ RUN set -eux ; \
     echo "install WISARD-CI ( version: ${WISARD_CI_VERSION} )" && \
 # install wisard from svn
     cd /opt && svn export https://svn.jmmc.fr/jmmc-sw/WISARD-CI/tags/${WISARD_CI_VERSION}/wisard-ci && \
-    ln -s $WISARD_DIR/bin/wisard-ci /usr/bin && \
+    rm -rf $WISARD_DIR/inputdata && ln -s $WISARD_DIR/bin/wisard-ci /usr/bin && \
 # it is necessary to have the astro libraries in gdl, they are not put by default in its path, so
     echo "!PATH=!PATH+\":$ASTROLIB_DIR\"" > $WISARD_DIR/gdl_startup.pro && \
     apt-get purge --auto-remove -y $BUILD_PKG && rm -rf /var/lib/apt/lists/* ; \
@@ -218,7 +227,7 @@ RUN set -eux ; \
     cd ../.. && ./configure && make install && \
 #    apk del .build-deps && \
 #    rm -rf /var/cache/apk/* && rm -rf /usr/local/share/doc
-    rm -rf /opt/MiRA/.git ; \
+    rm -rf /opt/MiRA/.git && rm -rf /opt/MiRA/data && rm -rf /opt/yorick/doc && \
     apt-get purge --auto-remove -y $BUILD_PKG && rm -rf /var/lib/apt/lists/* ; \
     fi
 
@@ -252,6 +261,17 @@ RUN set -eux ; \
 #  Finalization
 #
 
+# Use valgrind with wisard:
+ADD valgrind-wisard-ci $WISARD_DIR/bin/
+
+RUN set -eux ; \
+    if [ $USE_VALGRIND -eq 1 ] ; then \
+    apt-get update && apt-get install -y valgrind && \
+    rm /usr/bin/wisard-ci && \
+    ln -s $WISARD_DIR/bin/valgrind-wisard-ci /usr/bin/wisard-ci && \
+    echo "---> valgrind + wisard ready !" ; \
+    fi
+
 # Limit threads for OpenMP:
 # ENV OMP_THREAD_LIMIT=1
 
@@ -264,3 +284,4 @@ ENV CATALINA_OPTS="-Xms128m -Xmx512m"
 
 USER tomcat
 EXPOSE 8080
+
