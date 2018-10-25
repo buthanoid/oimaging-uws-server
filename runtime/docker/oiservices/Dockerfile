@@ -33,7 +33,7 @@ ARG USE_VALGRIND=0
 # VMWare vCPU=ivybridge -> broadwell
 
 # For Production:
-ARG GCC_OPTS="-Ofast -march=broadwell -malign-double -mfpmath=sse -fomit-frame-pointer -fstrict-aliasing -ffast-math -DNDEBUG -pipe"
+ARG GCC_OPTS="-Ofast -march=broadwell -mfpmath=sse -fomit-frame-pointer -fstrict-aliasing -ffast-math -DNDEBUG -pipe"
 
 # For Valgrind:
 #ARG GCC_OPTS="-Og -g -march=broadwell -mfpmath=sse -fstrict-aliasing -ffast-math -DNDEBUG -pipe"
@@ -76,9 +76,9 @@ RUN set -eux ; \
 #  WISARD-CI
 #
 
-# GDL: gnudatalanguage/gdl.git
-ENV GDL_VERSION="bourgesl/gdl.git" \
-    WISARD_CI_VERSION="WISARD-CI_V3_1_10" \
+# GDL: gnudatalanguage/gdl.git or bourgesl/gdl.git
+ENV GDL_VERSION="gnudatalanguage/gdl.git" \
+    WISARD_CI_VERSION="WISARD-CI_V3_1_11" \
     WISARD_DIR="/opt/wisard-ci" \
     ASTROLIB_DIR="/opt/astrolib"
 

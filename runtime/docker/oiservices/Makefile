@@ -44,9 +44,14 @@
 # History 2.8 :  
 #   - upgrade WISARD-CI to 3.1.10 (fix NaN handling)
 #   - upgrade GDL (fix crash in where)
+# History 2.9 :  
+#   - upgrade WISARD-CI to 3.1.11 (fix wavelength processing)
+#   - upgrade GDL (trunk)
 #
+
+VERSION=2.9
 NAME=oiservices
-VERSION=2.8
+
 TAR_FILE=$(NAME)-$(VERSION).tar
 # hard-coded as docker image is not prepared on server VM
 CPU_COUNT:=4
