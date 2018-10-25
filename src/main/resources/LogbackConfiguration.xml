@@ -5,15 +5,28 @@
 <!--    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener" /> -->
 
     <!-- Appenders -->
-    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d %-5level [%thread] %logger{40} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- docker runs in /usr/local/tomcat so store jmmc logs into tomcat/logs -->
         <file>logs/oimaging-uws.log</file>
         <append>true</append>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+          <!-- daily rollover -->
+          <fileNamePattern>logs/oimaging-uws.%d{yyyy-MM-dd}.log</fileNamePattern>
+        </rollingPolicy>
+
         <!-- set immediateFlush to false for much higher logging throughput -->
         <immediateFlush>true</immediateFlush>
 
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %-5level [%thread] %logger{60} - %msg%n</pattern>
+            <pattern>%d %-5level [%thread] %logger{40} - %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -29,6 +42,7 @@
 
     <!-- Root Logger -->
     <root>
+        <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </root>
 
