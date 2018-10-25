@@ -27,7 +27,6 @@ RUN set -eux ; \
     adduser --system --uid 901 --gid 900 --home $CATALINA_HOME --shell /bin/bash --disabled-login tomcat && \
     chown -R tomcat:tomcat $CATALINA_HOME
 
-ARG USE_VALGRIND=0
 
 # General GCC tuning:
 # VMWare vCPU=ivybridge -> broadwell
@@ -35,8 +34,15 @@ ARG USE_VALGRIND=0
 # For Production:
 ARG GCC_OPTS="-Ofast -march=broadwell -mfpmath=sse -fomit-frame-pointer -fstrict-aliasing -ffast-math -DNDEBUG -pipe"
 
+ARG USE_VALGRIND=0
 # For Valgrind:
 #ARG GCC_OPTS="-Og -g -march=broadwell -mfpmath=sse -fstrict-aliasing -ffast-math -DNDEBUG -pipe"
+
+# 4 jobs (faster)
+ARG MAKE_OPTS="-j 4"
+# To debug builds:
+#ARG MAKE_OPTS="VERBOSE=1"
+
 
 # Enable software installs (1=enable):
 ARG DO_BSMEM=1
@@ -58,14 +64,14 @@ RUN set -eux ; \
     cd /opt/oifitslib/build && \
 # disable openmp: -DOPENMP=OFF
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" -DOPENMP=OFF .. && \
-    make VERBOSE=1 && make install && cd /opt && rm -rf /opt/oifitslib && \
+    make $MAKE_OPTS && make install && cd /opt && rm -rf /opt/oifitslib && \
 # install bsmem
     echo "install BSMem from http://www.mrao.cam.ac.uk/downloads/bsmem/bsmem-v2.1.1.tar.gz (we may use https://gitlab.com/jsy1001/bsmem/tags)" && \
     cd /opt && wget -q http://www.mrao.cam.ac.uk/downloads/bsmem/bsmem-v2.1.1.tar.gz && \
     tar -xzf bsmem*.gz >/dev/null 2>&1 && rm bsmem*.gz && \
     apt-get install -y --no-install-recommends pgplot5 xterm libfftw3-single3 libfftw3-double3 libnfft3-single2 libnfft3-double2 && \
     cd /opt/bsmem*/build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" -DOPENMP=OFF .. && \
-    make VERBOSE=1 && make install && cd /opt && rm -rf /opt/bsmem* && \
+    make $MAKE_OPTS && make install && cd /opt && rm -rf /opt/bsmem* && \
     apt-get purge --auto-remove -y $BUILD_PKG && rm -rf /var/lib/apt/lists/* ; \
     fi
 
@@ -101,7 +107,7 @@ RUN set -eux ; \
     export CMAKE_ARGS="$CMAKE_ARGS -DGRAPHICSMAGICK=OFF -DMAGICK=OFF -DWXWIDGETS=OFF -DTIFF=OFF -DNETCDF=OFF -DHDF=OFF -DHDF5=OFF -DPYTHON=OFF -DPSLIB=OFF -DX11=OFF" && \
     cd /opt/gdl && mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" $CMAKE_ARGS .. && \
-    make VERBOSE=1 && make install && rm -rf /opt/gdl && rm -rf /usr/local/include/eigen3 && \
+    make $MAKE_OPTS && make install && rm -rf /opt/gdl && rm -rf /usr/local/include/eigen3 && \
     echo "install WISARD-CI ( version: ${WISARD_CI_VERSION} )" && \
 # install wisard from svn
     cd /opt && svn export https://svn.jmmc.fr/jmmc-sw/WISARD-CI/tags/${WISARD_CI_VERSION}/wisard-ci && \
@@ -151,12 +157,12 @@ RUN set -eux ; \
     wget -q http://heasarc.gsfc.nasa.gov/FTP/software/fitsio/c/cfitsio_latest.tar.gz && \
     tar -xzf cfitsio_latest.tar.gz >/dev/null 2>&1 && rm cfitsio_latest.tar.gz && cd cfitsio && \
     export CFLAGS="$GCC_OPTS" && \
-    ./configure --prefix=/usr/ && make VERBOSE=1 && make install && \
+    ./configure --prefix=/usr/ && make $MAKE_OPTS && make install && \
     unset CFLAGS && \
     cd .. && rm -rf cfitsio && \
     wget -q https://github.com/emmt/XFFT/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd XFFT-master/ && \
-    ./configure --cflags="$GCC_OPTS" --with-fftw2=no --with-fftw2-threads=no && make VERBOSE=1 && make install && \
+    ./configure --cflags="$GCC_OPTS" --with-fftw2=no --with-fftw2-threads=no && make $MAKE_OPTS && make install && \
     cd .. && rm -rf XFFT-master && \
     wget -q https://github.com/emmt/ylib/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd ylib-master/ && \
@@ -164,33 +170,33 @@ RUN set -eux ; \
     wget -q https://github.com/emmt/Yeti/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd Yeti-master && \
     ./configure --with-fftw=no --with-regex=yes --with-tiff=yes && \
-    make VERBOSE=1 all && make install && cd /opt && rm -rf Yeti-master && \
+    make $MAKE_OPTS all && make install && cd /opt && rm -rf Yeti-master && \
     cd /opt/yorick/i-start && ln -s ../i0/yeti.i yeti.i && \
     wget -q https://github.com/emmt/IPY/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd IPY-master && \
-    ./configure --cflags="$GCC_OPTS" && make VERBOSE=1 && make install && cd /opt && rm -rf IPY-master && \
+    ./configure --cflags="$GCC_OPTS" && make $MAKE_OPTS && make install && cd /opt && rm -rf IPY-master && \
     wget -q https://github.com/emmt/OptimPackLegacy/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd OptimPackLegacy-master/ && \
 # OptimPack issue with -Ofast (so use -O2)
-    yorick/configure --cflags="-O2" && make VERBOSE=1 && make install && cd /opt && rm -rf OptimPackLegacy-master && \
+    yorick/configure --cflags="-O2" && make $MAKE_OPTS && make install && cd /opt && rm -rf OptimPackLegacy-master && \
     wget -q https://github.com/emmt/OptimPack/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd OptimPack-master/ && \
-    yorick/configure --cflags="-O2" && make VERBOSE=1 && make install && cd /opt && rm -rf OptimPack-master && \
+    yorick/configure --cflags="-O2" && make $MAKE_OPTS && make install && cd /opt && rm -rf OptimPack-master && \
     wget -q https://github.com/emmt/YOIFITS/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd YOIFITS-master && \
-    ./configure --cflags="$GCC_OPTS" && make VERBOSE=1 && make install && cd /opt && rm -rf YOIFITS-master && \
+    ./configure --cflags="$GCC_OPTS" && make $MAKE_OPTS && make install && cd /opt && rm -rf YOIFITS-master && \
     wget -q https://github.com/emmt/YImage/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd YImage-master && \
-    ./configure --cflags="$GCC_OPTS" && make VERBOSE=1 && make install && cd /opt && rm -rf YImage-master && \
+    ./configure --cflags="$GCC_OPTS" && make $MAKE_OPTS && make install && cd /opt && rm -rf YImage-master && \
     wget -q https://github.com/emmt/ygsl/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd ygsl-master && \
-    ./configure --cflags="$GCC_OPTS" && make VERBOSE=1 && make install && cd /opt && rm -rf ygsl-master && \
+    ./configure --cflags="$GCC_OPTS" && make $MAKE_OPTS && make install && cd /opt && rm -rf ygsl-master && \
     wget -q https://github.com/emmt/YFITSIO/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd YFITSIO-master && \
-    ./configure --cflags="$GCC_OPTS" && make VERBOSE=1 && make install && cd /opt && rm -rf YFITSIO-master && \
+    ./configure --cflags="$GCC_OPTS" && make $MAKE_OPTS && make install && cd /opt && rm -rf YFITSIO-master && \
     wget -q https://github.com/emmt/YTotVar/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd YTotVar-master && \
-    yorick -batch make.i && make VERBOSE=1 && make install && cd /opt && rm -rf YTotVar-master && \
+    yorick -batch make.i && make $MAKE_OPTS && make install && cd /opt && rm -rf YTotVar-master && \
 #    apk del .build-deps && \
 #    rm -rf /var/cache/apk/*
 #
@@ -203,27 +209,27 @@ RUN set -eux ; \
     mkdir -p /opt && cd /opt && \
 #    wget -q https://github.com/emmt/OptimPackLegacy/archive/master.zip && \
 #    unzip -q master.zip && rm master.zip && cd OptimPackLegacy-master/ && \
-#    yorick/configure && make VERBOSE=1 && make install && cd /opt && rm -rf OptimPackLegacy-master && \
+#    yorick/configure && make $MAKE_OPTS && make install && cd /opt && rm -rf OptimPackLegacy-master && \
 # nfft
     wget -q https://www-user.tu-chemnitz.de/~potts/nfft/download/nfft-3.4.1.tar.gz && \
     tar -xzf nfft-3.4.1.tar.gz >/dev/null 2>&1 && rm nfft-3.4.1.tar.gz && cd nfft-3.4.1/ && \
     export CFLAGS="$GCC_OPTS" && \
 # disable openmp: --enable-openmp
-    ./configure --enable-all --enable-openmp=no && make VERBOSE=1 && make install && \
+    ./configure --enable-all --enable-openmp=no && make $MAKE_OPTS && make install && \
     unset CFLAGS && \
     cd .. && rm -rf nfft-3.4.1 && rm -rf /usr/local/share/doc/nfft && \
     wget -q https://github.com/emmt/ynfft/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd ynfft-master/ && \
 # disable openmp: -fopenmp
     ./configure --cflags="$GCC_OPTS -I/usr/local/include -pedantic -std=c99" && \
-    make VERBOSE=1 && make install && cd /opt && rm -rf ynfft-master && \
+    make $MAKE_OPTS && make install && cd /opt && rm -rf ynfft-master && \
     touch /usr/local/include/fitsio.h && \
     git clone https://github.com/${MIRA_CI_VERSION} && cd MiRA/ && \
     git submodule init && git submodule update && \
     git submodule foreach 'git checkout master' && \
-    cd lib/yoifits/ && ./configure --cflags="$GCC_OPTS" && make VERBOSE=1 && make install && \
-    cd ../ylib && ./configure --cflags="$GCC_OPTS" && make VERBOSE=1 && make install && \
-    cd ../ipy && ./configure --cflags="$GCC_OPTS" && make VERBOSE=1 && make install && \
+    cd lib/yoifits/ && ./configure --cflags="$GCC_OPTS" && make $MAKE_OPTS && make install && \
+    cd ../ylib && ./configure --cflags="$GCC_OPTS" && make $MAKE_OPTS && make install && \
+    cd ../ipy && ./configure --cflags="$GCC_OPTS" && make $MAKE_OPTS && make install && \
     cd ../.. && ./configure && make install && \
 #    apk del .build-deps && \
 #    rm -rf /var/cache/apk/* && rm -rf /usr/local/share/doc
