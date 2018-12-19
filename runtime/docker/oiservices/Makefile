@@ -49,7 +49,7 @@
 #   - upgrade GDL (trunk)
 #
 
-VERSION=2.9
+VERSION=3.0
 NAME=oiservices
 
 TAR_FILE=$(NAME)-$(VERSION).tar

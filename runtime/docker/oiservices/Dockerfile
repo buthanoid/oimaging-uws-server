@@ -38,10 +38,10 @@ ARG USE_VALGRIND=0
 # For Valgrind:
 #ARG GCC_OPTS="-Og -g -march=broadwell -mfpmath=sse -fstrict-aliasing -ffast-math -DNDEBUG -pipe"
 
-# 4 jobs (faster)
-ARG MAKE_OPTS="-j 4"
+# 2 jobs (faster)
+#ARG MAKE_OPTS="-j 4"
 # To debug builds:
-#ARG MAKE_OPTS="VERBOSE=1"
+ARG MAKE_OPTS="VERBOSE=1"
 
 
 # Enable software installs (1=enable):
@@ -123,8 +123,7 @@ RUN set -eux ; \
 #  MiRA
 #
 
-ENV MIRA_CI_VERSION="emmt/MiRA.git" \
-    MIRA_SRCDIR="/opt/MiRA/src"
+ENV MIRA_CI_VERSION="emmt/MiRA"
 
 # install Yorick
 # inspired from https://hub.docker.com/r/ferreol/yorick/~/dockerfile/
@@ -134,7 +133,7 @@ RUN set -eux ; \
 #    apk add --update --no-cache --virtual .build-deps make wget build-base zip && \
 #    apk add --update --no-cache rlwrap && \
 # rlwrap is only used in interpreter mode (skipped)
-    BUILD_PKG="git make gcc g++ gfortran zip libtiff5-dev libfftw3-dev libgsl-dev" && \
+    BUILD_PKG="make gcc g++ gfortran zip libtiff5-dev libfftw3-dev libgsl-dev" && \
     apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG libtiff5 libtiffxx5 libfftw3-single3 libfftw3-double3 libgsl2 && \
     mkdir -p /opt && cd /opt && \
     wget -q https://github.com/dhmunro/yorick/archive/master.zip && \
@@ -171,17 +170,18 @@ RUN set -eux ; \
     unzip -q master.zip && rm master.zip && cd Yeti-master && \
     ./configure --with-fftw=no --with-regex=yes --with-tiff=yes && \
     make $MAKE_OPTS all && make install && cd /opt && rm -rf Yeti-master && \
-    cd /opt/yorick/i-start && ln -s ../i0/yeti.i yeti.i && \
+# disable Yeti ?
+    # cd /opt/yorick/i-start && ln -s ../i0/yeti.i yeti.i && \
     wget -q https://github.com/emmt/IPY/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd IPY-master && \
     ./configure --cflags="$GCC_OPTS" && make $MAKE_OPTS && make install && cd /opt && rm -rf IPY-master && \
     wget -q https://github.com/emmt/OptimPackLegacy/archive/master.zip && \
-    unzip -q master.zip && rm master.zip && cd OptimPackLegacy-master/ && \
+    unzip -q master.zip && rm master.zip && cd OptimPackLegacy-master/yorick && \
 # OptimPack issue with -Ofast (so use -O2)
-    yorick/configure --cflags="-O2" && make $MAKE_OPTS && make install && cd /opt && rm -rf OptimPackLegacy-master && \
+    ./configure --cflags="-O2" && make $MAKE_OPTS && make install && cd /opt && rm -rf OptimPackLegacy-master && \
     wget -q https://github.com/emmt/OptimPack/archive/master.zip && \
-    unzip -q master.zip && rm master.zip && cd OptimPack-master/ && \
-    yorick/configure --cflags="-O2" && make $MAKE_OPTS && make install && cd /opt && rm -rf OptimPack-master && \
+    unzip -q master.zip && rm master.zip && cd OptimPack-master/yorick && \
+    ./configure --cflags="-O2" && make $MAKE_OPTS && make install && cd /opt && rm -rf OptimPack-master && \
     wget -q https://github.com/emmt/YOIFITS/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd YOIFITS-master && \
     ./configure --cflags="$GCC_OPTS" && make $MAKE_OPTS && make install && cd /opt && rm -rf YOIFITS-master && \
@@ -207,9 +207,6 @@ RUN set -eux ; \
 #    apk add --update --no-cache --virtual .build-deps bash git make wget build-base zip && \
 #    apk add --update --no-cache fftw-dev && \
     mkdir -p /opt && cd /opt && \
-#    wget -q https://github.com/emmt/OptimPackLegacy/archive/master.zip && \
-#    unzip -q master.zip && rm master.zip && cd OptimPackLegacy-master/ && \
-#    yorick/configure && make $MAKE_OPTS && make install && cd /opt && rm -rf OptimPackLegacy-master && \
 # nfft
     wget -q https://www-user.tu-chemnitz.de/~potts/nfft/download/nfft-3.4.1.tar.gz && \
     tar -xzf nfft-3.4.1.tar.gz >/dev/null 2>&1 && rm nfft-3.4.1.tar.gz && cd nfft-3.4.1/ && \
@@ -223,29 +220,25 @@ RUN set -eux ; \
 # disable openmp: -fopenmp
     ./configure --cflags="$GCC_OPTS -I/usr/local/include -pedantic -std=c99" && \
     make $MAKE_OPTS && make install && cd /opt && rm -rf ynfft-master && \
-    touch /usr/local/include/fitsio.h && \
-    git clone https://github.com/${MIRA_CI_VERSION} && cd MiRA/ && \
-    git submodule init && git submodule update && \
-    git submodule foreach 'git checkout master' && \
-    cd lib/yoifits/ && ./configure --cflags="$GCC_OPTS" && make $MAKE_OPTS && make install && \
-    cd ../ylib && ./configure --cflags="$GCC_OPTS" && make $MAKE_OPTS && make install && \
-    cd ../ipy && ./configure --cflags="$GCC_OPTS" && make $MAKE_OPTS && make install && \
-    cd ../.. && ./configure && make install && \
+#    touch /usr/local/include/fitsio.h && \
+    wget -q https://github.com/${MIRA_CI_VERSION}/archive/master.zip && \
+    unzip master.zip && rm master.zip && cd MiRA-master/ && \
+    ./configure --prefix=/usr/local && make $MAKE_OPTS install && \
+    rm -rf MiRA-master && rm -rf /opt/yorick/doc && \
 #    apk del .build-deps && \
 #    rm -rf /var/cache/apk/* && rm -rf /usr/local/share/doc
-    rm -rf /opt/MiRA/.git && rm -rf /opt/MiRA/data && rm -rf /opt/yorick/doc && \
     apt-get purge --auto-remove -y $BUILD_PKG && rm -rf /var/lib/apt/lists/* ; \
     fi
 
 
 # add custom wrapper for mira-ci
-ADD mira-ci.sh /opt/MiRA/bin/
+ADD mira-ci.sh /usr/local/bin/
 
 RUN set -eux ; \
     if [ $DO_MIRA -eq 1 ] ; then \
-    chmod +x /opt/MiRA/bin/mira-ci.sh && \
-    ln -s /opt/MiRA/bin/ymira /usr/bin && \
-    ln -s /opt/MiRA/bin/mira-ci.sh /usr/bin/mira-ci ; \
+    mv /usr/local/bin/mira-ci.sh /usr/local/bin/mira-ci && \
+    chmod +x /usr/local/bin/mira-ci && \
+    ln -s /usr/local/bin/ymira /usr/bin ; \
     fi
 
 # Patch MRDFITS.pro
