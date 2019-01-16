@@ -1,8 +1,8 @@
 # Exposes UWS services - Work In Progress
 # https://hub.docker.com/_/tomcat/
 #
-# debian stretch
-FROM tomcat:8.5-jre8
+# debian stretch (slim) with tomcat 8.5 / OpenJDK 8
+FROM tomcat:8.5-slim
 
 
 ###################################
@@ -18,7 +18,7 @@ ADD stretch_sources.list /etc/apt/sources.list
 RUN set -eux ; \
 	apt-get update && apt-get upgrade -y && \
 # Add vi, top, ps, vi:
-    apt-get install -y --no-install-recommends procps vim && \
+    apt-get install -y --no-install-recommends procps vim wget && \
 # Eliminate default web applications
     rm -rf ${CATALINA_HOME}/webapps/* && \
     rm -rf ${CATALINA_HOME}/server/webapps/* && \
@@ -84,7 +84,7 @@ RUN set -eux ; \
 
 # GDL: gnudatalanguage/gdl.git or bourgesl/gdl.git
 ENV GDL_VERSION="gnudatalanguage/gdl.git" \
-    WISARD_CI_VERSION="WISARD-CI_V3_1_11" \
+    WISARD_CI_VERSION="WISARD-CI_V3_1_12" \
     WISARD_DIR="/opt/wisard-ci" \
     ASTROLIB_DIR="/opt/astrolib"
 
@@ -279,7 +279,7 @@ RUN set -eux ; \
 ADD OImaging-uws.war /usr/local/tomcat/webapps/
 
 # Reduce memory footprint for tomcat (UWS):
-ENV CATALINA_OPTS="-Xms128m -Xmx512m"
+ENV CATALINA_OPTS="-Xms64m -Xmx256m"
 
 USER tomcat
 EXPOSE 8080

@@ -47,9 +47,13 @@
 # History 2.9 :  
 #   - upgrade WISARD-CI to 3.1.11 (fix wavelength processing)
 #   - upgrade GDL (trunk)
+# History 3.0 :  
+#   - upgraded MIRA
+# History 3.1 :  
+#   - upgraded WISARD-CI to 3.1.12 (fix NaN / flags)
 #
 
-VERSION=3.0
+VERSION=3.1
 NAME=oiservices
 
 TAR_FILE=$(NAME)-$(VERSION).tar
