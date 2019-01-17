@@ -32,7 +32,9 @@ RUN set -eux ; \
 # VMWare vCPU=ivybridge -> broadwell
 
 # For Production:
-ARG GCC_OPTS="-Ofast -march=broadwell -mfpmath=sse -fomit-frame-pointer -fstrict-aliasing -ffast-math -DNDEBUG -pipe"
+# -Ofast or -ffast-math disables NaN handling
+# see https://stackoverflow.com/questions/27315941/gcc-ofast-complete-list-of-limitations
+ARG GCC_OPTS="-O3 -march=broadwell -mfpmath=sse -fomit-frame-pointer -fstrict-aliasing -DNDEBUG -pipe"
 
 ARG USE_VALGRIND=0
 # For Valgrind:
@@ -84,7 +86,7 @@ RUN set -eux ; \
 
 # GDL: gnudatalanguage/gdl.git or bourgesl/gdl.git
 ENV GDL_VERSION="gnudatalanguage/gdl.git" \
-    WISARD_CI_VERSION="WISARD-CI_V3_1_12" \
+    WISARD_CI_VERSION="WISARD-CI_V3_1_13" \
     WISARD_DIR="/opt/wisard-ci" \
     ASTROLIB_DIR="/opt/astrolib"
 
@@ -177,11 +179,10 @@ RUN set -eux ; \
     ./configure --cflags="$GCC_OPTS" && make $MAKE_OPTS && make install && cd /opt && rm -rf IPY-master && \
     wget -q https://github.com/emmt/OptimPackLegacy/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd OptimPackLegacy-master/yorick && \
-# OptimPack issue with -Ofast (so use -O2)
-    ./configure --cflags="-O2" && make $MAKE_OPTS && make install && cd /opt && rm -rf OptimPackLegacy-master && \
+    ./configure --cflags="$GCC_OPTS" && make $MAKE_OPTS && make install && cd /opt && rm -rf OptimPackLegacy-master && \
     wget -q https://github.com/emmt/OptimPack/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd OptimPack-master/yorick && \
-    ./configure --cflags="-O2" && make $MAKE_OPTS && make install && cd /opt && rm -rf OptimPack-master && \
+    ./configure --cflags="$GCC_OPTS" && make $MAKE_OPTS && make install && cd /opt && rm -rf OptimPack-master && \
     wget -q https://github.com/emmt/YOIFITS/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd YOIFITS-master && \
     ./configure --cflags="$GCC_OPTS" && make $MAKE_OPTS && make install && cd /opt && rm -rf YOIFITS-master && \
@@ -279,7 +280,7 @@ RUN set -eux ; \
 ADD OImaging-uws.war /usr/local/tomcat/webapps/
 
 # Reduce memory footprint for tomcat (UWS):
-ENV CATALINA_OPTS="-Xms64m -Xmx256m"
+ENV CATALINA_OPTS="-Xms64m -Xmx128m"
 
 USER tomcat
 EXPOSE 8080
