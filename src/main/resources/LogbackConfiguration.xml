@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
-<!-- Application specific configuration -->
-<included>
-<!--    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener" /> -->
+<!-- Debug controls the Logback configuration logs -->
+<configuration debug="false" scan="false" scanPeriod="30 seconds" >
+
+    <!-- Reset java.util.logging configuration -->
+    <!-- disabled: conflict with Tomcat -->
+<!--
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+-->
 
     <!-- Appenders -->
-
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d %-5level [%thread] %logger{40} - %msg%n</pattern>
@@ -30,21 +36,21 @@
         </encoder>
     </appender>
 
-    <!-- redefine custom appenders to NOP -->
-    <appender name="APPLOG" class="ch.qos.logback.core.helpers.NOPAppender" />
-    <appender name="STATUSLOG" class="ch.qos.logback.core.helpers.NOPAppender" />
-
 
     <!-- Loggers -->
+
+    <!-- JMMC -->
+    <logger name="fr.jmmc" level="INFO"/>
 
     <!-- OImaging -->
     <logger name="fr.jmmc.oimaging" level="INFO"/>
 
+
     <!-- Root Logger -->
-    <root>
+    <!-- Note: level must be INFO in production to avoid performance issues with JUL -->
+    <root level="INFO">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </root>
 
-</included>
-
+</configuration>

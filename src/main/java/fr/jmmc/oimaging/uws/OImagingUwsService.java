@@ -41,6 +41,9 @@ public class OImagingUwsService extends HttpServlet {
     private static final boolean LOG_SETTINGS = false;
     private static final boolean HOMEPAGE_SHOW_JOBS = false;
 
+    /** OIMaging LogBack configuration file as one resource file (in class path) */
+    private final static String OIMAGING_LOGBACK_CONFIG_RESOURCE = "LogbackConfiguration.xml";
+
     private static Logger logger = null;
 
     /* members */
@@ -59,11 +62,11 @@ public class OImagingUwsService extends HttpServlet {
      */
     @Override
     public void init(final ServletConfig config) throws ServletException {
-        // Start the application log singleton with log mappers
-        LoggingService.getInstance(false);
+        // Start the application log singleton in web service mode:
+        LoggingService.getInstanceForWebService(OIMAGING_LOGBACK_CONFIG_RESOURCE);
 
-        final ch.qos.logback.classic.Logger jmmcLogger = LoggingService.getJmmcLogger();
-        jmmcLogger.info("jMCS log created at {}. Current level is {}.", new Date(), jmmcLogger.getEffectiveLevel());
+        final Logger jmmcLogger = LoggingService.getJmmcLogger();
+        jmmcLogger.info("jMCS log created at {}. Current level is {}.", new Date(), LoggingService.getLoggerEffectiveLevel(jmmcLogger));
 
         // Initialize internal logger:
         logger = LoggerFactory.getLogger(OImagingWork.class.getName());
