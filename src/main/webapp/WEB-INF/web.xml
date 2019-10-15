@@ -13,6 +13,7 @@
     <servlet>
         <servlet-name>OImaging</servlet-name>
         <servlet-class>fr.jmmc.oimaging.uws.OImagingUwsService</servlet-class>
+        <load-on-startup>0</load-on-startup>
         <init-param>
             <param-name>maxRunningJobs</param-name>
             <param-value>MAX_RUNNING_JOBS_VALUE</param-value>
