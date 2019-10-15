@@ -21,6 +21,12 @@
             <version>TRUNK</version>
             <!-- removed jmcs libraries dedicated to Swing apps -->
             <exclusions>
+                <!-- discard JUL to slf4j to avoid any conflict with tomcat -->
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jul-to-slf4j</artifactId>
+                </exclusion>
+
                 <exclusion>
                     <groupId>apple</groupId>
                     <artifactId>AppleJavaExtensions</artifactId>
@@ -44,6 +50,15 @@
                 <exclusion>
                     <groupId>edu.stanford.ejalbert</groupId>
                     <artifactId>BrowserLauncher2</artifactId>
+                </exclusion>
+                <!-- no need for Http client -->
+                <exclusion>
+                    <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-httpclient</groupId>
+                    <artifactId>commons-httpclient</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
