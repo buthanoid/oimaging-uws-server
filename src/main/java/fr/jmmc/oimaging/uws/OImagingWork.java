@@ -86,19 +86,26 @@ public class OImagingWork extends JobThread {
 
             logger.info("Job[{}] submitting task [software: {} inputFile: {}]", jobId, software, inputFilePath);
 
+            OImagingUwsStats.INSTANCE.start(software);
+
             final int statusCode = exec(software, cliOptions, workDir, inputFilePath, outputFile.getAbsolutePath(), logFile.getAbsolutePath());
 
             logger.info("Job[{}] exec returned: {}", jobId, statusCode);
 
             if (statusCode == EXEC_KILLED) {
+                OImagingUwsStats.INSTANCE.cancel(software);
                 // Interrupt the thread to make JobThread abort this job:
                 Thread.currentThread().interrupt();
             } else {
                 // TODO: if error, maybe use ErrorSummary but there is no way to return log file ?
                 // setError(new ErrorSummary(String msg, ErrorType errorType, String detailedMsgURI));
                 if (outputFile.exists()) {
+                    OImagingUwsStats.INSTANCE.success(software);
+
                     FileUtils.saveFile(outputFile, getResultOutput(outputResult));
                     publishResult(outputResult);
+                } else {
+                    OImagingUwsStats.INSTANCE.error(software);
                 }
                 if (logFile.exists()) {
                     FileUtils.saveFile(logFile, getResultOutput(logResult));

@@ -38,6 +38,9 @@ public class OImagingUwsService extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
+    /* max job duration (seconds) = 2 hours */
+    private final static long MAX_DURATION = 2 * 3600L;
+
     private static final boolean LOG_SETTINGS = false;
     private static final boolean HOMEPAGE_SHOW_JOBS = false;
 
@@ -62,88 +65,101 @@ public class OImagingUwsService extends HttpServlet {
      */
     @Override
     public void init(final ServletConfig config) throws ServletException {
-        // Start the application log singleton in web service mode:
-        LoggingService.getInstanceForWebService(OIMAGING_LOGBACK_CONFIG_RESOURCE);
-
-        final Logger jmmcLogger = LoggingService.getJmmcLogger();
-        jmmcLogger.info("jMCS log created at {}. Current level is {}.", new Date(), LoggingService.getLoggerEffectiveLevel(jmmcLogger));
-
-        // Initialize internal logger:
-        logger = LoggerFactory.getLogger(OImagingWork.class.getName());
-
-        if (LOG_SETTINGS) {
-            final StringBuilder sb = new StringBuilder(16384);
-            sb.append("System properties:\n");
-            // Get all informations about the system running the application
-            Preferences.dumpProperties(System.getProperties(), sb);
-            sb.append("\n\nEnvironment settings:\n");
-            Preferences.dumpProperties(System.getenv(), sb);
-
-            logger.info("JVM Settings:\n{}", sb.toString());
-        }
-
-        final String tempPath = FileUtils.getTempDirPath();
-        final File uwsDir = new File(tempPath, "uws");
-        uwsDir.mkdirs();
-
-        final File logDir = FileUtils.getDirectory("./logs/");
-        if (logDir == null) {
-            throw new ServletException("Can not initialize the UWS log !");
-        }
-
         try {
+            // Start the application log singleton in web service mode:
+            LoggingService.getInstanceForWebService(OIMAGING_LOGBACK_CONFIG_RESOURCE);
+
+            final Logger jmmcLogger = LoggingService.getJmmcLogger();
+            jmmcLogger.info("jMCS log created at {}. Current level is {}.", new Date(), LoggingService.getLoggerEffectiveLevel(jmmcLogger));
+
+            // Initialize internal logger:
+            logger = LoggerFactory.getLogger(OImagingWork.class.getName());
+
+            if (LOG_SETTINGS) {
+                final StringBuilder sb = new StringBuilder(16384);
+                sb.append("System properties:\n");
+                // Get all informations about the system running the application
+                Preferences.dumpProperties(System.getProperties(), sb);
+                sb.append("\n\nEnvironment settings:\n");
+                Preferences.dumpProperties(System.getenv(), sb);
+
+                logger.info("JVM Settings:\n{}", sb.toString());
+            }
+
+            final String tempPath = FileUtils.getTempDirPath();
+            final File uwsDir = new File(tempPath, "uws");
+            uwsDir.mkdirs();
+
+            final File logDir = FileUtils.getDirectory("./logs/");
+            if (logDir == null) {
+                throw new ServletException("Can not initialize the UWS service !");
+            }
+
             // Get UWS config from servlet config:
-            final int maxRunningJobs = Integer.valueOf(config.getInitParameter("maxRunningJobs"));
-            logger.info("init: Initializing UWS Service[maxRunningJobs = {}]", maxRunningJobs);
+            final int maxRunningJobs;
+            try {
+                maxRunningJobs = Integer.valueOf(config.getInitParameter("maxRunningJobs"));
+            } catch (NumberFormatException nfe) {
+                logger.error("Unable to parse parameter 'maxRunningJobs' from servlet config !", nfe);
+                throw new ServletException("Can not initialize the UWS service !", nfe);
+            }
+            logger.info("init: Initializing UWS Service[maxRunningJobs = {}, maxDuration = {} s]", maxRunningJobs, MAX_DURATION);
             logger.info("init: UWS root path = '{}'", uwsDir.getAbsolutePath());
             logger.info("init: UWS  log path = '{}'", logDir.getAbsolutePath());
 
-            final LocalUWSFileManager uwsFileManager = new LocalUWSFileManager(uwsDir) {
-                @Override
-                protected File getLogFile(final LogLevel level, final String context) {
-                    return new File(logDir, getLogFileName(level, context));
-                }
-            };
-            // Create the UWS service:
-            service = new UWSService(new MyUWSFactory(), uwsFileManager, new DefaultUWSLog(uwsFileManager));
+            try {
+                final LocalUWSFileManager uwsFileManager = new LocalUWSFileManager(uwsDir) {
+                    @Override
+                    protected File getLogFile(final LogLevel level, final String context) {
+                        return new File(logDir, getLogFileName(level, context));
+                    }
+                };
+                // Create the UWS service:
+                service = new UWSService(new OImagingUWSFactory(MAX_DURATION), uwsFileManager, new DefaultUWSLog(uwsFileManager));
 
-            /* 
+                /* 
             * Note:
 	         * Service files (like log and results) will be stored in a new directory called "ServiceFiles"
              * inside the deployment directory of the webservice.
-             */
-            // Change the default home page:
-            service.replaceUWSAction(new MyHomePage(service));
+                 */
+                // Change the default home page:
+                service.replaceUWSAction(new MyHomePage(service));
 
-            JobList jl = new JobList("oimaging");
-            jl.setExecutionManager(new QueuedExecutionManager(service.getLogger(), maxRunningJobs));
-            service.addJobList(jl);
+                JobList jl = new JobList("oimaging");
+                jl.setExecutionManager(new QueuedExecutionManager(service.getLogger(), maxRunningJobs));
+                service.addJobList(jl);
 
-        } catch (NumberFormatException nfe) {
-            throw new ServletException("Can not initialize the UWS service!", nfe);
-        } catch (UWSException ue) {
-            throw new ServletException("Can not initialize the UWS service!", ue);
+            } catch (UWSException ue) {
+                logger.error("Unable to initialize UWS service :", ue);
+                throw new ServletException("Can not initialize the UWS service !");
+            }
+
+            LocalLauncher.startUp();
+
+            monitorFuture = ThreadExecutors.getSingleExecutor("ServiceMonitor").submit(new ServiceMonitor(uwsDir));
+
+            logger.info("init: done");
+
+        } catch (RuntimeException re) {
+            logger.error("Unable to initialize UWS service :", re);
+            throw new ServletException("Can not initialize the UWS service !");
         }
-
-        LocalLauncher.startUp();
-
-        monitorFuture = ThreadExecutors.getSingleExecutor("ServiceMonitor").submit(new ServiceMonitor(uwsDir));
-
-        logger.info("init: done");
     }
 
     @Override
     public void destroy() {
         logger.info("destroy: stopping UWS Service...");
 
-        // Signal to monitor to stop:
-        monitorFuture.cancel(true);
-
-        LocalLauncher.shutdown();
-
         if (service != null) {
             service.destroy();
         }
+
+        if (monitorFuture != null) {
+            // Signal to monitor to interrupt the thread:
+            monitorFuture.cancel(true);
+        }
+        LocalLauncher.shutdown();
+
         logger.info("destroy: done");
     }
 
@@ -166,10 +182,13 @@ public class OImagingUwsService extends HttpServlet {
 	 * are now separated and only kept in the UWSJob given in parameter. This one is created automatically by the API.
 	 * You just have to provide the "work" part.
      */
-    private static final class MyUWSFactory extends AbstractUWSFactory {
+    private static final class OImagingUWSFactory extends AbstractUWSFactory {
 
-        MyUWSFactory() {
+        OImagingUWSFactory(final long maxDuration) {
             super();
+
+            // set max job duration (timeout):
+            configureExecution(maxDuration, maxDuration, false);
 
             addExpectedAdditionalParameter(OImagingWork.INPUTFILE);
             setInputParamController(OImagingWork.INPUTFILE, new InputParamController() {
@@ -231,10 +250,10 @@ public class OImagingUwsService extends HttpServlet {
         public boolean apply(UWSUrl url, JobOwner user, HttpServletRequest req, HttpServletResponse resp) throws UWSException, IOException {
             PrintWriter out = resp.getWriter();
 
-            // TODO : remove it because of confidentiality requirements.
             out.println("<html><head><title>UWS4 OImaging</title></head><body>");
-            out.println("<h1>UWS4 OImaging (using UWSService)</h1");
+            out.println("<h1>UWS4 OImaging</h1>");
 
+            // disabled for confidentiality requirements:
             if (HOMEPAGE_SHOW_JOBS) {
                 out.println("<p>Below is the list of all available jobs lists:</p>");
 
@@ -244,6 +263,14 @@ public class OImagingUwsService extends HttpServlet {
                 }
                 out.println("</ul>");
             }
+
+            out.println("<h2>Statistics</h2>");
+            out.println("<pre>");
+            out.println(OImagingUwsStats.INSTANCE.getStats());
+            out.println("</pre>");
+
+            out.println("</body></html>");
+
             return true;
         }
     }

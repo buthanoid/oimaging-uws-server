@@ -52,6 +52,7 @@ final class ServiceMonitor implements Runnable {
 
     public void doMonitoring() {
         LocalLauncher.dumpStats();
+        OImagingUwsStats.INSTANCE.dumpStats();
 
         // TODO: other tasks (File system cleanup ?)
         // cleanup input / output files in UWS for leaking job (never retrieved by client / remove after 1 day ...)
