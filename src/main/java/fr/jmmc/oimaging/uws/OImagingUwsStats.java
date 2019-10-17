@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Basic statistics
+ * Basic OImaging UWS statistics
  */
 public final class OImagingUwsStats {
 
@@ -22,18 +22,19 @@ public final class OImagingUwsStats {
     private final TreeMap<String, AppStats> statsMap = new TreeMap<String, AppStats>();
     /** last update timestamp */
     private long lastUpdate = 0L;
+    /** last log timestamp */
+    private long lastLog = 0L;
 
     private OImagingUwsStats() {
         super();
     }
 
     /**
-     * Logs the Launcher statistics
+     * Logs the OImaging UWS statistics
      */
     public synchronized void dumpStats() {
-        final long now = System.currentTimeMillis();
-
-        if ((now != lastUpdate)) {
+        if (lastUpdate > lastLog) {
+            lastLog = lastUpdate;
             logger.info("OImagingUwsStats: {}", getStats());
         }
     }
