@@ -51,9 +51,13 @@
 #   - upgraded MIRA
 # History 3.1 :  
 #   - upgraded WISARD-CI to 3.1.12 (fix NaN / flags)
+# History 3.2 :  
+#   - fixed log configuration + server-side timeout (2H)
+# History 3.2.1 :  
+#   - fixed stats log (no repeat)
 #
 
-VERSION=3.1
+VERSION=3.2.1
 NAME=oiservices
 
 TAR_FILE=$(NAME)-$(VERSION).tar
@@ -96,7 +100,7 @@ $(TAR_FILE):
 
 # This image snapshot is used in the ansible jmmc-oimaging-uws role (look into vars so that the versions match)
 publish: $(TAR_FILE)
-	scp $(TAR_FILE) sysjmmc@container.prod.jmmc.fr:/mnt/persistent_datastore/data/docker/
+	scp $(TAR_FILE) sysjmmc@container.prod.jmmc.fr:/data/docker/
 
 exec-bsmem-ci-help:
 	docker run -it $(NAME):$(VERSION) bsmem-ci -h
