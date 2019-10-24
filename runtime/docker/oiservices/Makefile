@@ -55,9 +55,12 @@
 #   - fixed log configuration + server-side timeout (2H)
 # History 3.2.1 :  
 #   - fixed stats log (no repeat)
+# History 3.3 :  
+#   - upgraded Docker image (debian buster + full up-to-date build @ 2019.10.22)
+#   - added Sparco plugin (mira from FerreolS)
 #
 
-VERSION=3.2.1
+VERSION=3.3.2
 NAME=oiservices
 
 TAR_FILE=$(NAME)-$(VERSION).tar
