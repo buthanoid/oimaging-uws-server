@@ -57,25 +57,21 @@ ARG DO_WISARD=1
 #
 #  BSMEM
 #
-
-# Use local bsmem 2.2.1 (broken link):
-ADD bsmem-v2.2.1.tar.bz2 /opt/
+ENV BSMEM_CI_VERSION="bsmem-v2.2.1"
 
 RUN set -eux ; \
     if [ "$DO_BSMEM" -eq "1" ] ; then \
 # install oifitslib for bsmem after prerequisites
-	BUILD_PKG="git cmake make gcc g++ gfortran libcfitsio-dev libglib2.0-dev libfftw3-dev libnfft3-dev" && \
+	BUILD_PKG="git cmake make gcc g++ gfortran libcfitsio-dev libglib2.0-dev libfftw3-dev libnfft3-dev bzip2" && \
     apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG libcfitsio7 libglib2.0-bin && \
     cd /opt && git clone https://github.com/jsy1001/oifitslib.git && cd oifitslib && git checkout v2.4.0 && \
     cd /opt/oifitslib/build && \
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" .. && \
     make $MAKE_OPTS && make install && cd /opt && rm -rf /opt/oifitslib && \
 # install bsmem
-    echo "install BSMem from (local bsmem-v2.2.1)" && \
-# TODO: fix remote link
-#    cd /opt && wget -q http://www.mrao.cam.ac.uk/downloads/bsmem/bsmem-v2.1.1.tar.gz && \
-#    tar -xzf bsmem*.gz >/dev/null 2>&1 && rm bsmem*.gz && \
-    cd /opt && \
+    echo "install BSMem from mrao.cam.ac.uk" && \
+    cd /opt && wget -q http://www.mrao.cam.ac.uk/downloads/bsmem/${BSMEM_CI_VERSION}.tar.bz2 && \
+    bunzip2 bsmem*.bz2 >/dev/null 2>&1 && tar -xf bsmem*.tar >/dev/null 2>&1 && rm bsmem*.tar && \
     apt-get install -y --no-install-recommends pgplot5 xterm libfftw3-single3 libfftw3-double3 libnfft3-single2 libnfft3-double2 && \
     cd /opt/bsmem*/build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" .. && \
     make $MAKE_OPTS && make install && cd /opt && rm -rf /opt/bsmem* && \
@@ -289,7 +285,7 @@ RUN set -eux ; \
     fi
 
 # TODO: remove patches to fix sparco plugin:
-ADD sparco_patch/mira2_*.i /opt/yorick/i/
+ADD sparco_patch/mira2_plugin_sparcomulti.i /opt/yorick/i/
 
 
 ###################################
@@ -319,6 +315,6 @@ ADD OImaging-uws.war /usr/local/tomcat/webapps/
 ENV CATALINA_OPTS="-Xms64m -Xmx128m"
 
 # Define USER to restrict privileges (not root) once image is production ready:
-#USER tomcat
+USER tomcat
 EXPOSE 8080
 

@@ -58,9 +58,11 @@
 # History 3.3 :  
 #   - upgraded Docker image (debian buster + full up-to-date build @ 2019.10.22)
 #   - added Sparco plugin (mira from FerreolS)
+# History 3.3.3 :
+#   - updated remote links and repository (bsmem, mira)
 #
 
-VERSION=3.3.2
+VERSION=3.3.3
 NAME=oiservices
 
 TAR_FILE=$(NAME)-$(VERSION).tar
