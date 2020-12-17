@@ -29,7 +29,7 @@ RUN set -eux ; \
 
 
 # General GCC tuning:
-# VMWare vCPU uses the broadwell arch
+# VMWare vCPU uses the broadwell arch (lower level requirement)
 
 # For Production:
 # -Ofast or -ffast-math disables NaN handling
@@ -96,10 +96,10 @@ RUN set -eux ; \
     BUILD_PKG="git subversion cmake make gcc g++ libncurses5-dev zlib1g-dev libgsl-dev libplplot-dev libreadline-gplv2-dev libfftw3-dev" && \
     apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG unzip libpng16-16 libncurses5 zlib1g libgsl23 libplplot16 libplplotcxx14 libreadline5 libfftw3-single3 libfftw3-double3 && \
 # Eigen install into /usr/local/include/eigen3/ (only header files)
-    cd /opt && wget -q http://bitbucket.org/eigen/eigen/get/3.3.7.zip && unzip -q 3.3.7.zip && rm 3.3.7.zip && \
-    cd /opt/eigen-eigen-* && mkdir build && cd build && \
+    cd /opt && wget -q https://gitlab.com/libeigen/eigen/-/archive/3.3.9/eigen-3.3.9.zip && unzip -q eigen-*.zip && rm eigen-*.zip && \
+    cd /opt/eigen-* && mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release .. && \
-    make install && rm -rf /opt/eigen* && \
+    make install && rm -rf /opt/eigen-* && \
 # idl-astro
     cd /opt/ && git clone https://github.com/wlandsman/IDLAstro.git && \
     mkdir -p $ASTROLIB_DIR && cp IDLAstro/pro/* $ASTROLIB_DIR/ && rm -rf IDLAstro* && \
@@ -107,7 +107,7 @@ RUN set -eux ; \
     cd /opt/ && git clone https://github.com/${GDL_VERSION} && \
 # disable openmp: -DOPENMP=OFF
     export CMAKE_ARGS="-DOPENMP=OFF -DEDITLINE=OFF -DREADLINE=ON -DFFTW=ON -DEIGEN3=ON -DEIGEN3DIR=/usr/local/include/eigen3/ -DX11=ON" && \
-    export CMAKE_ARGS="$CMAKE_ARGS -DGRAPHICSMAGICK=OFF -DMAGICK=OFF -DWXWIDGETS=OFF -DTIFF=OFF -DNETCDF=OFF -DHDF=OFF -DHDF5=OFF -DPYTHON=OFF -DPSLIB=OFF -DX11=OFF -DLIBPROJ4=OFF -DSHAPELIB=OFF -DEXPAT=OFF" && \
+    export CMAKE_ARGS="$CMAKE_ARGS -DGRAPHICSMAGICK=OFF -DMAGICK=OFF -DWXWIDGETS=OFF -DTIFF=OFF -DNETCDF=OFF -DHDF=OFF -DHDF5=OFF -DPYTHON=OFF -DPSLIB=OFF -DX11=OFF -DLIBPROJ4=OFF -DSHAPELIB=OFF -DEXPAT=OFF -DUDUNITS2=OFF -DGRIB=OFF -DGLPK=OFF" && \
     cd /opt/gdl && mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" $CMAKE_ARGS .. && \
     make $MAKE_OPTS && make install && rm -rf /opt/gdl && rm -rf /usr/local/share/gnudatalanguage/resource/maps && \
