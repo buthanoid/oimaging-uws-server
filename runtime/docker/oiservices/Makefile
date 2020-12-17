@@ -60,9 +60,11 @@
 #   - added Sparco plugin (mira from FerreolS)
 # History 3.3.3 :
 #   - updated remote links and repository (bsmem, mira)
+# History 3.4 :
+#   - fixed build (dec 2020)  
 #
 
-VERSION=3.3.3
+VERSION=3.4.0a
 NAME=oiservices
 
 TAR_FILE=$(NAME)-$(VERSION).tar
