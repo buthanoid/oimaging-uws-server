@@ -116,6 +116,6 @@ exec-wisard-ci-help:
 	docker run -it $(NAME):$(VERSION) wisard-ci -h
 
 clean:
-	rm ../../../target/OImaging-uws.war ;\
+	rm -f ../../../target/OImaging-uws.war ;\
 	rm -rf OImaging-uws.war $(TAR_FILE)
 
