@@ -4,7 +4,6 @@
 # debian buster (slim) with tomcat 8.5 / OpenJDK 8
 FROM tomcat:8.5-jdk8-openjdk-slim
 
-
 ###################################
 #
 # Usual maintenance
@@ -16,6 +15,7 @@ FROM tomcat:8.5-jdk8-openjdk-slim
 ADD debian_fr_sources.list /etc/apt/sources.list
 
 RUN set -eux ; \
+        apt-get install apt-transport-https && \
 	apt-get update && apt-get upgrade -y && \
 # Add vi, top, ps, vi:
     apt-get install -y --no-install-recommends procps vim wget && \
@@ -63,7 +63,7 @@ RUN set -eux ; \
     if [ "$DO_BSMEM" -eq "1" ] ; then \
 # install oifitslib for bsmem after prerequisites
 	BUILD_PKG="git cmake make gcc g++ gfortran libcfitsio-dev libglib2.0-dev libfftw3-dev libnfft3-dev bzip2" && \
-    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG libcfitsio7 libglib2.0-bin && \
+    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG libglib2.0-bin && \
     cd /opt && git clone https://github.com/jsy1001/oifitslib.git && cd oifitslib && git checkout v2.4.0 && \
     cd /opt/oifitslib/build && \
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" .. && \
@@ -93,8 +93,8 @@ ENV GDL_VERSION="gnudatalanguage/gdl.git" \
 
 RUN set -eux ; \
     if [ "$DO_WISARD" -eq "1" ] ; then \
-    BUILD_PKG="git subversion cmake make gcc g++ libncurses5-dev zlib1g-dev libgsl-dev libplplot-dev libreadline-gplv2-dev libfftw3-dev" && \
-    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG unzip libpng16-16 libncurses5 zlib1g libgsl23 libplplot16 libplplotcxx14 libreadline5 libfftw3-single3 libfftw3-double3 && \
+    BUILD_PKG="git subversion cmake make gcc g++ libncurses5-dev zlib1g-dev libgsl-dev libplplot-dev libreadline-dev libfftw3-dev" && \
+    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG unzip libpng16-16 libncurses5 zlib1g libgsl-dev libplplot-dev libplplotcxx?? libfftw3-single3 libfftw3-double3 && \
 # Eigen install into /usr/local/include/eigen3/ (only header files)
     cd /opt && wget -q https://gitlab.com/libeigen/eigen/-/archive/3.3.9/eigen-3.3.9.zip && unzip -q eigen-*.zip && rm eigen-*.zip && \
     cd /opt/eigen-* && mkdir build && cd build && \
@@ -108,6 +108,7 @@ RUN set -eux ; \
 # disable openmp: -DOPENMP=OFF
     export CMAKE_ARGS="-DOPENMP=OFF -DEDITLINE=OFF -DREADLINE=ON -DFFTW=ON -DEIGEN3=ON -DEIGEN3DIR=/usr/local/include/eigen3/ -DX11=ON" && \
     export CMAKE_ARGS="$CMAKE_ARGS -DGRAPHICSMAGICK=OFF -DMAGICK=OFF -DWXWIDGETS=OFF -DTIFF=OFF -DNETCDF=OFF -DHDF=OFF -DHDF5=OFF -DPYTHON=OFF -DPSLIB=OFF -DX11=OFF -DLIBPROJ4=OFF -DSHAPELIB=OFF -DEXPAT=OFF -DUDUNITS2=OFF -DGRIB=OFF -DGLPK=OFF" && \
+    export CMAKE_ARGS="$CMAKE_ARGS -DINTERACTIVE_GRAPHICS=OFF" && \
     cd /opt/gdl && mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" $CMAKE_ARGS .. && \
     make $MAKE_OPTS && make install && rm -rf /opt/gdl && rm -rf /usr/local/share/gnudatalanguage/resource/maps && \
