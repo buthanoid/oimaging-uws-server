@@ -32,7 +32,7 @@ do
   fi
 done
 
-docker run $vols oiservices $cmd $args
+docker run --rm $vols oiservices $cmd $args
 RET_CODE=$?
 
 # Guess that 2 args always match input and output
@@ -44,7 +44,7 @@ then
   if [ -e "${OUTPUT}" ]
   then
     # Fix permissions (else output may be own by root)
-    docker run $vols oiservices chown --reference=$args
+    docker run --rm $vols oiservices chown --reference=$args
   fi
 fi
 
