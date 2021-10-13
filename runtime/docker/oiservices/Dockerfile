@@ -52,6 +52,18 @@ ARG DO_MIRA=1
 ARG DO_SPARCO=1
 ARG DO_WISARD=1
 
+ARG MAKE_OPTS="VERBOSE=1"
+
+ARG OMP_THREAD_LIMIT=1
+# Limit threads for OpenMP:
+ENV OMP_THREAD_LIMIT=${OMP_THREAD_LIMIT}
+
+# Reduce memory footprint for tomcat (UWS):
+ENV CATALINA_OPTS="-Xms64m -Xmx128m"
+
+# speedup make -j calls below
+ARG MAKEJ_NTHREADS=1
+
 
 ###################################
 #
@@ -93,8 +105,8 @@ ENV GDL_VERSION="gnudatalanguage/gdl.git" \
 
 RUN set -eux ; \
     if [ "$DO_WISARD" -eq "1" ] ; then \
-    BUILD_PKG="git subversion cmake make gcc g++ libncurses5-dev zlib1g-dev libgsl-dev libplplot-dev libreadline-dev libfftw3-dev" && \
-    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG unzip libpng16-16 libncurses5 zlib1g libgsl-dev libplplot-dev libplplotcxx?? libfftw3-single3 libfftw3-double3 && \
+    BUILD_PKG="git subversion cmake make gcc g++ libncurses5-dev zlib1g-dev libplplot-dev  libfftw3-dev" && \
+    apt-get update && apt-get install --fix-missing -y --no-install-recommends $BUILD_PKG unzip libpng16-16 zlib1g libgsl-dev libplplot-dev libplplotcxx?? libfftw3-single3 libfftw3-double3 && \
 # Eigen install into /usr/local/include/eigen3/ (only header files)
     cd /opt && wget -q https://gitlab.com/libeigen/eigen/-/archive/3.3.9/eigen-3.3.9.zip && unzip -q eigen-*.zip && rm eigen-*.zip && \
     cd /opt/eigen-* && mkdir build && cd build && \
@@ -105,13 +117,13 @@ RUN set -eux ; \
     mkdir -p $ASTROLIB_DIR && cp IDLAstro/pro/* $ASTROLIB_DIR/ && rm -rf IDLAstro* && \
 # Gdl
     cd /opt/ && git clone https://github.com/${GDL_VERSION} && \
-# disable openmp: -DOPENMP=OFF
-    export CMAKE_ARGS="-DOPENMP=OFF -DEDITLINE=OFF -DREADLINE=ON -DFFTW=ON -DEIGEN3=ON -DEIGEN3DIR=/usr/local/include/eigen3/ -DX11=ON" && \
-    export CMAKE_ARGS="$CMAKE_ARGS -DGRAPHICSMAGICK=OFF -DMAGICK=OFF -DWXWIDGETS=OFF -DTIFF=OFF -DNETCDF=OFF -DHDF=OFF -DHDF5=OFF -DPYTHON=OFF -DPSLIB=OFF -DX11=OFF -DLIBPROJ4=OFF -DSHAPELIB=OFF -DEXPAT=OFF -DUDUNITS2=OFF -DGRIB=OFF -DGLPK=OFF" && \
+# do not disable openmp,see OMP_THREAD_LIMIT env
+    export CMAKE_ARGS="-DOPENMP=ON -DEDITLINE=OFF -DREADLINE=OFF -DFFTW=ON -DEIGEN3=ON -DEIGEN3DIR=/usr/local/include/eigen3/ -DX11=OFF" && \
+    export CMAKE_ARGS="$CMAKE_ARGS -DGRAPHICSMAGICK=OFF -DMAGICK=OFF -DWXWIDGETS=OFF -DTIFF=OFF -DNETCDF=OFF -DHDF=OFF -DHDF5=OFF -DPYTHON=OFF -DPSLIB=OFF -DX11=OFF -DLIBPROJ=OFF -DSHAPELIB=OFF -DEXPAT=OFF -DUDUNITS2=OFF -DGRIB=OFF -DGLPK=OFF" && \
     export CMAKE_ARGS="$CMAKE_ARGS -DINTERACTIVE_GRAPHICS=OFF" && \
     cd /opt/gdl && mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" $CMAKE_ARGS .. && \
-    make $MAKE_OPTS && make install && rm -rf /opt/gdl && rm -rf /usr/local/share/gnudatalanguage/resource/maps && \
+    make -j ${MAKEJ_NTHREADS} $MAKE_OPTS && make install && rm -rf /opt/gdl && rm -rf /usr/local/share/gnudatalanguage/resource/maps && \
     rm -rf /usr/local/include/eigen3 && \
     echo "install WISARD-CI ( version: ${WISARD_CI_VERSION} )" && \
 # install wisard from svn
@@ -139,7 +151,7 @@ RUN set -eux ; \
 #    apk add --update --no-cache rlwrap && \
 # rlwrap is only used in interpreter mode (skipped)
     BUILD_PKG="make gcc g++ gfortran zip libtiff5-dev libfftw3-dev libgsl-dev" && \
-    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG unzip libtiff5 libtiffxx5 libfftw3-single3 libfftw3-double3 libgsl23 && \
+    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG unzip libtiff5 libtiffxx5 libfftw3-single3 libfftw3-double3 libgsl?? && \
     mkdir -p /opt && cd /opt && \
     wget -q https://github.com/dhmunro/yorick/archive/master.zip && \
     unzip -q master.zip && rm master.zip && cd yorick-master && \
@@ -305,15 +317,10 @@ RUN set -eux ; \
     echo "---> valgrind + wisard ready !" ; \
     fi
 
-# Limit threads for OpenMP:
-# ENV OMP_THREAD_LIMIT=1
 
 # Auto-deploy OImaging-uws.war on startup
 # note: CONTEXT_PATH is not honored : app dir is the basename of the war (OImaging-uws here)
 ADD OImaging-uws.war /usr/local/tomcat/webapps/
-
-# Reduce memory footprint for tomcat (UWS):
-ENV CATALINA_OPTS="-Xms64m -Xmx128m"
 
 # Define USER to restrict privileges (not root) once image is production ready:
 USER tomcat

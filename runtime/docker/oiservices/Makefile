@@ -70,6 +70,10 @@ NAME=oiservices
 TAR_FILE=$(NAME)-$(VERSION).tar
 # hard-coded as docker image is not prepared on server VM
 CPU_COUNT:=4
+OMP_THREAD_LIMIT:=2
+
+NTHREADS := $(shell getconf _NPROCESSORS_ONLN) # find nthreads for make -j
+
 # $(shell grep -c '^processor' /proc/cpuinfo)
 
 all:	build
@@ -79,7 +83,7 @@ force-build:	Dockerfile OImaging-uws.war
 	docker build --no-cache=true -t $(NAME):$(VERSION) --rm .
 
 build:	Dockerfile OImaging-uws.war
-	docker build -t $(NAME):$(VERSION) --rm .
+	docker build -t $(NAME):$(VERSION) --build-arg OMP_THREAD_LIMIT=$(OMP_THREAD_LIMIT) --build-arg MAKEJ_NTHREADS=$(NTHREADS) --rm .
 
 tag_latest:
 	docker tag $(NAME):$(VERSION) $(NAME):latest
