@@ -32,36 +32,36 @@
 #   - gcc tuning (march) for bsmem / gdl / mira
 # History 2.3 :
 #   - gcc tuning (march=ivybridge) + cleanup (-dev + .git) + enable OMP_THREAD_LIMIT=2
-# History 2.4 :  
+# History 2.4 :
 #   - disable OpenMP (lower overhead) when building BSMEM, MiRA & Wisard
 # History 2.5 :
 #   - upgrade WISARD-CI to 3.1.7 + use march=broadwell
 # History 2.6 :
 #   - upgrade WISARD-CI to 3.1.8 (fix waverange filter)
 #   - set docker memory limit to 8G
-# History 2.7 :  
+# History 2.7 :
 #   - logs moved into tomcat/logs + job duration
-# History 2.8 :  
+# History 2.8 :
 #   - upgrade WISARD-CI to 3.1.10 (fix NaN handling)
 #   - upgrade GDL (fix crash in where)
-# History 2.9 :  
+# History 2.9 :
 #   - upgrade WISARD-CI to 3.1.11 (fix wavelength processing)
 #   - upgrade GDL (trunk)
-# History 3.0 :  
+# History 3.0 :
 #   - upgraded MIRA
-# History 3.1 :  
+# History 3.1 :
 #   - upgraded WISARD-CI to 3.1.12 (fix NaN / flags)
-# History 3.2 :  
+# History 3.2 :
 #   - fixed log configuration + server-side timeout (2H)
-# History 3.2.1 :  
+# History 3.2.1 :
 #   - fixed stats log (no repeat)
-# History 3.3 :  
+# History 3.3 :
 #   - upgraded Docker image (debian buster + full up-to-date build @ 2019.10.22)
 #   - added Sparco plugin (mira from FerreolS)
 # History 3.3.3 :
 #   - updated remote links and repository (bsmem, mira)
 # History 3.4 :
-#   - fixed build (dec 2020)  
+#   - fixed build (dec 2020)
 #
 
 VERSION=3.4.0a
@@ -76,7 +76,7 @@ NTHREADS := $(shell getconf _NPROCESSORS_ONLN) # find nthreads for make -j
 
 # $(shell grep -c '^processor' /proc/cpuinfo)
 
-all:	build
+all:	build tag_latest
 
 # call force-build to start again building process from the beginning
 force-build:	Dockerfile OImaging-uws.war
@@ -100,7 +100,7 @@ OImaging-uws.war: ../../../target/OImaging-uws.war
 	cd -
 
 run:
-	docker rm oiservices || true 
+	docker rm oiservices || true
 	docker run -it --name oiservices --memory 8g --memory-swappiness 0 -p 8080:8080 $(NAME):$(VERSION)
 
 shell:

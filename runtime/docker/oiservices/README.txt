@@ -3,9 +3,8 @@ make clean
 make
 # or make force-build (to clean cache)
 
-# Run docker image:
-docker images
-docker run -p 8080:8080 <imageId>
+# Run local UWS server docker image:
+make run
 
 # Access to docker container:
 docker ps
