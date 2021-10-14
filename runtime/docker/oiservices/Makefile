@@ -62,9 +62,14 @@
 #   - updated remote links and repository (bsmem, mira)
 # History 3.4 :
 #   - fixed build (dec 2020)
+# History 3.5 :
+#   - updated libs in Dockerfile
+#   - bump WISARD-CI to 3.1.14
+#   - enabled OPENMP back again 
 #
 
-VERSION=3.4.0a
+
+VERSION=3.5.0a
 NAME=oiservices
 
 TAR_FILE=$(NAME)-$(VERSION).tar

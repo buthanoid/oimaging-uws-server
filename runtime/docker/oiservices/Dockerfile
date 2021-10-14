@@ -99,7 +99,7 @@ RUN set -eux ; \
 
 # GDL: gnudatalanguage/gdl.git or bourgesl/gdl.git
 ENV GDL_VERSION="gnudatalanguage/gdl.git" \
-    WISARD_CI_VERSION="WISARD-CI_V3_1_13" \
+    WISARD_CI_VERSION="WISARD-CI_V3_1_14" \
     WISARD_DIR="/opt/wisard-ci" \
     ASTROLIB_DIR="/opt/astrolib"
 
