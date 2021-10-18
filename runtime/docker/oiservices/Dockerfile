@@ -15,8 +15,8 @@ FROM tomcat:8.5-jdk8-openjdk-slim
 ADD debian_fr_sources.list /etc/apt/sources.list
 
 RUN set -eux ; \
-        apt-get install apt-transport-https && \
-	apt-get update && apt-get upgrade -y && \
+    apt-get install apt-transport-https && \
+    apt-get update && apt-get upgrade -y && \
 # Add vi, top, ps, vi:
     apt-get install -y --no-install-recommends procps vim wget && \
 # Eliminate default web applications
@@ -76,7 +76,7 @@ RUN set -eux ; \
 # install oifitslib for bsmem after prerequisites
 	BUILD_PKG="git cmake make gcc g++ gfortran libcfitsio-dev libglib2.0-dev libfftw3-dev libnfft3-dev bzip2" && \
     apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG libglib2.0-bin && \
-    cd /opt && git clone https://github.com/jsy1001/oifitslib.git && cd oifitslib && git checkout v2.4.0 && \
+    cd /opt && git clone --depth 1 -b v2.4.0 https://github.com/jsy1001/oifitslib.git && cd oifitslib && \
     cd /opt/oifitslib/build && \
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" .. && \
     make $MAKE_OPTS && make install && cd /opt && rm -rf /opt/oifitslib && \
@@ -105,29 +105,31 @@ ENV GDL_VERSION="gnudatalanguage/gdl.git" \
 
 RUN set -eux ; \
     if [ "$DO_WISARD" -eq "1" ] ; then \
-    BUILD_PKG="git subversion cmake make gcc g++ libncurses5-dev zlib1g-dev libplplot-dev  libfftw3-dev" && \
-    apt-get update && apt-get install --fix-missing -y --no-install-recommends $BUILD_PKG unzip libpng16-16 zlib1g libgsl-dev libplplot-dev libplplotcxx?? libfftw3-single3 libfftw3-double3 && \
+    BUILD_PKG="git subversion cmake make gcc g++ libncurses5-dev zlib1g-dev libgsl-dev libplplot-dev libfftw3-dev" && \
+    apt-get update && apt-get install --fix-missing -y --no-install-recommends $BUILD_PKG unzip libpng16-16 libncurses5 zlib1g libgsl2? libplplotcxx?? libfftw3-single3 libfftw3-double3 libtirpc3 && \
 # Eigen install into /usr/local/include/eigen3/ (only header files)
     cd /opt && wget -q https://gitlab.com/libeigen/eigen/-/archive/3.3.9/eigen-3.3.9.zip && unzip -q eigen-*.zip && rm eigen-*.zip && \
     cd /opt/eigen-* && mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release .. && \
     make install && rm -rf /opt/eigen-* && \
 # idl-astro
-    cd /opt/ && git clone https://github.com/wlandsman/IDLAstro.git && \
+    cd /opt/ && git clone --depth 1 https://github.com/wlandsman/IDLAstro.git && \
     mkdir -p $ASTROLIB_DIR && cp IDLAstro/pro/* $ASTROLIB_DIR/ && rm -rf IDLAstro* && \
 # Gdl
-    cd /opt/ && git clone https://github.com/${GDL_VERSION} && \
-# do not disable openmp,see OMP_THREAD_LIMIT env
-    export CMAKE_ARGS="-DOPENMP=ON -DEDITLINE=OFF -DREADLINE=OFF -DFFTW=ON -DEIGEN3=ON -DEIGEN3DIR=/usr/local/include/eigen3/ -DX11=OFF" && \
-    export CMAKE_ARGS="$CMAKE_ARGS -DGRAPHICSMAGICK=OFF -DMAGICK=OFF -DWXWIDGETS=OFF -DTIFF=OFF -DNETCDF=OFF -DHDF=OFF -DHDF5=OFF -DPYTHON=OFF -DPSLIB=OFF -DX11=OFF -DLIBPROJ=OFF -DSHAPELIB=OFF -DEXPAT=OFF -DUDUNITS2=OFF -DGRIB=OFF -DGLPK=OFF" && \
-    export CMAKE_ARGS="$CMAKE_ARGS -DINTERACTIVE_GRAPHICS=OFF" && \
+    cd /opt/ && git clone --depth 1 https://github.com/${GDL_VERSION} && \
+# do not disable openmp, see OMP_THREAD_LIMIT env
+    if [ ${OMP_THREAD_LIMIT} -gt 1 ]; then USE_OPENMP="ON"; else USE_OPENMP="OFF"; fi && \
+    export CMAKE_ARGS="-DOPENMP=${USE_OPENMP} -DEDITLINE=OFF -DREADLINE=OFF -DFFTW=ON -DEIGEN3=ON -DEIGEN3DIR=/usr/local/include/eigen3/ -DX11=OFF" && \
+    export CMAKE_ARGS="$CMAKE_ARGS -DGRAPHICSMAGICK=OFF -DMAGICK=OFF -DWXWIDGETS=OFF -DTIFF=OFF -DNETCDF=OFF -DHDF=OFF -DHDF5=OFF -DPYTHON=OFF -DPSLIB=OFF -DX11=OFF -DLIBPROJ=OFF -DSHAPELIB=OFF -DEXPAT=OFF -DUDUNITS2=OFF -DGRIB=OFF -DGLPK=OFF -DINTERACTIVE_GRAPHICS=OFF" && \
+    export CMAKE_ARGS="$CMAKE_ARGS" && \
     cd /opt/gdl && mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" $CMAKE_ARGS .. && \
     make -j ${MAKEJ_NTHREADS} $MAKE_OPTS && make install && rm -rf /opt/gdl && rm -rf /usr/local/share/gnudatalanguage/resource/maps && \
     rm -rf /usr/local/include/eigen3 && \
     echo "install WISARD-CI ( version: ${WISARD_CI_VERSION} )" && \
-# install wisard from svn
-    cd /opt && svn export https://svn.jmmc.fr/jmmc-sw/WISARD-CI/tags/${WISARD_CI_VERSION}/wisard-ci && \
+# install wisard from github
+#    cd /opt && svn export https://svn.jmmc.fr/jmmc-sw/WISARD-CI/tags/${WISARD_CI_VERSION}/wisard-ci && \
+    cd /opt/ && git clone --depth 1 https://github.com/JMMC-OpenDev/wisard-ci.git && \    
     rm -rf $WISARD_DIR/inputdata && ln -s $WISARD_DIR/bin/wisard-ci /usr/bin && \
 # it is necessary to have the astro libraries in gdl, they are not put by default in its path, so
     echo "!PATH=!PATH+\":$ASTROLIB_DIR\"" > $WISARD_DIR/gdl_startup.pro && \
@@ -257,18 +259,6 @@ RUN set -eux ; \
     ln -s /usr/local/bin/ymira /usr/bin ; \
     fi
 
-# Patch MRDFITS.pro
-ADD mrdfits.patch $WISARD_DIR/
-
-RUN set -eux ; \
-    if [ "$DO_MIRA" -eq "1" ] ; then \
-	BUILD_PKG="patch" && \
-    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG && \
-    patch $ASTROLIB_DIR/mrdfits.pro < $WISARD_DIR/mrdfits.patch && \
-    rm $WISARD_DIR/mrdfits.patch && \
-    apt-get purge --auto-remove -y $BUILD_PKG && rm -rf /var/lib/apt/lists/* ; \
-    fi
-
 
 ###################################
 #
@@ -311,7 +301,7 @@ ADD valgrind-wisard-ci.sh $WISARD_DIR/bin/
 
 RUN set -eux ; \
     if [ $USE_VALGRIND -eq 1 ] ; then \
-    apt-get update && apt-get install -y valgrind && \
+    apt-get update && apt-get install -y --no-install-recommends valgrind && \
     rm /usr/bin/wisard-ci && \
     ln -s $WISARD_DIR/bin/valgrind-wisard-ci.sh /usr/bin/wisard-ci && \
     echo "---> valgrind + wisard ready !" ; \
