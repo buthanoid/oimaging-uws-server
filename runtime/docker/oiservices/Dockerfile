@@ -40,10 +40,10 @@ ARG USE_VALGRIND=0
 # For Valgrind:
 #ARG GCC_OPTS="-Og -g -march=broadwell -mfpmath=sse -fstrict-aliasing -DNDEBUG -pipe"
 
-# 2 jobs (faster)
-#ARG MAKE_OPTS="-j 4"
 # To debug builds:
 ARG MAKE_OPTS="VERBOSE=1"
+# To speedup make -j calls below (WISARD only)
+ARG MAKEJ_NTHREADS=1
 
 
 # Enable software installs (1=enable):
@@ -61,8 +61,6 @@ ENV OMP_THREAD_LIMIT=${OMP_THREAD_LIMIT}
 # Reduce memory footprint for tomcat (UWS):
 ENV CATALINA_OPTS="-Xms64m -Xmx128m"
 
-# speedup make -j calls below
-ARG MAKEJ_NTHREADS=1
 
 
 ###################################
@@ -105,8 +103,8 @@ ENV GDL_VERSION="gnudatalanguage/gdl.git" \
 
 RUN set -eux ; \
     if [ "$DO_WISARD" -eq "1" ] ; then \
-    BUILD_PKG="git subversion cmake make gcc g++ libncurses5-dev zlib1g-dev libgsl-dev libplplot-dev libfftw3-dev" && \
-    apt-get update && apt-get install --fix-missing -y --no-install-recommends $BUILD_PKG unzip libpng16-16 libncurses5 zlib1g libgsl2? libplplotcxx?? libfftw3-single3 libfftw3-double3 libtirpc3 && \
+    BUILD_PKG="git subversion cmake make gcc g++ libncurses5-dev zlib1g-dev libgsl-dev libplplot-dev libreadline-dev libfftw3-dev" && \
+    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG unzip libpng16-16 libncurses5 zlib1g libgsl2? libplplot17 libplplot-data libreadline8 libplplotcxx?? libfftw3-single3 libfftw3-double3 libtirpc3 && \
 # Eigen install into /usr/local/include/eigen3/ (only header files)
     cd /opt && wget -q https://gitlab.com/libeigen/eigen/-/archive/3.3.9/eigen-3.3.9.zip && unzip -q eigen-*.zip && rm eigen-*.zip && \
     cd /opt/eigen-* && mkdir build && cd build && \
@@ -119,9 +117,9 @@ RUN set -eux ; \
     cd /opt/ && git clone --depth 1 https://github.com/${GDL_VERSION} && \
 # do not disable openmp, see OMP_THREAD_LIMIT env
     if [ ${OMP_THREAD_LIMIT} -gt 1 ]; then USE_OPENMP="ON"; else USE_OPENMP="OFF"; fi && \
-    export CMAKE_ARGS="-DOPENMP=${USE_OPENMP} -DEDITLINE=OFF -DREADLINE=OFF -DFFTW=ON -DEIGEN3=ON -DEIGEN3DIR=/usr/local/include/eigen3/ -DX11=OFF" && \
-    export CMAKE_ARGS="$CMAKE_ARGS -DGRAPHICSMAGICK=OFF -DMAGICK=OFF -DWXWIDGETS=OFF -DTIFF=OFF -DNETCDF=OFF -DHDF=OFF -DHDF5=OFF -DPYTHON=OFF -DPSLIB=OFF -DX11=OFF -DLIBPROJ=OFF -DSHAPELIB=OFF -DEXPAT=OFF -DUDUNITS2=OFF -DGRIB=OFF -DGLPK=OFF -DINTERACTIVE_GRAPHICS=OFF" && \
-    export CMAKE_ARGS="$CMAKE_ARGS" && \
+    export CMAKE_ARGS="-DOPENMP=${USE_OPENMP} -DEDITLINE=ON -DREADLINE=ON -DFFTW=ON -DEIGEN3=ON -DEIGEN3DIR=/usr/local/include/eigen3/ -DX11=OFF" && \
+    export CMAKE_ARGS="$CMAKE_ARGS -DGRAPHICSMAGICK=OFF -DMAGICK=OFF -DWXWIDGETS=OFF -DTIFF=OFF -DNETCDF=OFF -DHDF=OFF -DHDF5=OFF -DPYTHON=OFF -DLIBPROJ=OFF -DSHAPELIB=OFF -DEXPAT=OFF -DUDUNITS2=OFF -DGRIB=OFF -DGLPK=OFF -DINTERACTIVE_GRAPHICS=OFF" && \
+    export CMAKE_ARGS="$CMAKE_ARGS -DINTERACTIVE_GRAPHICS=OFF" && \
     cd /opt/gdl && mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" $CMAKE_ARGS .. && \
     make -j ${MAKEJ_NTHREADS} $MAKE_OPTS && make install && rm -rf /opt/gdl && rm -rf /usr/local/share/gnudatalanguage/resource/maps && \
@@ -131,8 +129,8 @@ RUN set -eux ; \
 #    cd /opt && svn export https://svn.jmmc.fr/jmmc-sw/WISARD-CI/tags/${WISARD_CI_VERSION}/wisard-ci && \
     cd /opt/ && git clone --depth 1 https://github.com/JMMC-OpenDev/wisard-ci.git && \    
     rm -rf $WISARD_DIR/inputdata && ln -s $WISARD_DIR/bin/wisard-ci /usr/bin && \
-# it is necessary to have the astro libraries in gdl, they are not put by default in its path, so
-    echo "!PATH=!PATH+\":$ASTROLIB_DIR\"" > $WISARD_DIR/gdl_startup.pro && \
+# install astrolib in GDL
+    ln -s /opt/astrolib /usr/local/share/gnudatalanguage/lib && \
     apt-get purge --auto-remove -y $BUILD_PKG && rm -rf /var/lib/apt/lists/* ; \
     fi
 
