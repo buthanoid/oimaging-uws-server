@@ -97,13 +97,13 @@ RUN set -eux ; \
 
 # GDL: gnudatalanguage/gdl.git or bourgesl/gdl.git
 ENV GDL_VERSION="gnudatalanguage/gdl.git" \
-    WISARD_CI_VERSION="JMMC-OpenDev/wisard-ci.git" \
+    WISARD_CI_VERSION="main" \
     WISARD_DIR="/opt/wisard-ci" \
     ASTROLIB_DIR="/opt/astrolib"
 
 RUN set -eux ; \
     if [ "$DO_WISARD" -eq "1" ] ; then \
-    BUILD_PKG="git subversion cmake make gcc g++ libncurses5-dev zlib1g-dev libgsl-dev libplplot-dev libreadline-dev libfftw3-dev" && \
+    BUILD_PKG="git cmake make gcc g++ libncurses5-dev zlib1g-dev libgsl-dev libplplot-dev libreadline-dev libfftw3-dev" && \
     apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG unzip libpng16-16 libncurses5 zlib1g libgsl2? libplplot17 libplplot-data libreadline8 libplplotcxx?? libfftw3-single3 libfftw3-double3 libtirpc3 && \
 # Eigen install into /usr/local/include/eigen3/ (only header files)
     cd /opt && wget -q https://gitlab.com/libeigen/eigen/-/archive/3.3.9/eigen-3.3.9.zip && unzip -q eigen-*.zip && rm eigen-*.zip && \
@@ -126,7 +126,7 @@ RUN set -eux ; \
     rm -rf /usr/local/include/eigen3 && \
     echo "install WISARD-CI ( version: ${WISARD_CI_VERSION} )" && \
 # install wisard from github
-    cd /opt/ && git clone --depth 1 https://github.com/${WISARD_CI_VERSION} && \    
+    cd /opt/ && git clone --depth 1 -b ${WISARD_CI_VERSION} https://github.com/JMMC-OpenDev/wisard-ci.git && \    
     rm -rf $WISARD_DIR/inputdata && ln -s $WISARD_DIR/bin/wisard-ci /usr/bin && \
 # install astrolib in GDL
     ln -s /opt/astrolib /usr/local/share/gnudatalanguage/lib && \
