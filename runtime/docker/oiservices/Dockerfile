@@ -97,7 +97,7 @@ RUN set -eux ; \
 
 # GDL: gnudatalanguage/gdl.git or bourgesl/gdl.git
 ENV GDL_VERSION="gnudatalanguage/gdl.git" \
-    WISARD_CI_VERSION="WISARD-CI_V3_1_14" \
+    WISARD_CI_VERSION="JMMC-OpenDev/wisard-ci.git" \
     WISARD_DIR="/opt/wisard-ci" \
     ASTROLIB_DIR="/opt/astrolib"
 
@@ -126,8 +126,7 @@ RUN set -eux ; \
     rm -rf /usr/local/include/eigen3 && \
     echo "install WISARD-CI ( version: ${WISARD_CI_VERSION} )" && \
 # install wisard from github
-#    cd /opt && svn export https://svn.jmmc.fr/jmmc-sw/WISARD-CI/tags/${WISARD_CI_VERSION}/wisard-ci && \
-    cd /opt/ && git clone --depth 1 https://github.com/JMMC-OpenDev/wisard-ci.git && \    
+    cd /opt/ && git clone --depth 1 https://github.com/${WISARD_CI_VERSION} && \    
     rm -rf $WISARD_DIR/inputdata && ln -s $WISARD_DIR/bin/wisard-ci /usr/bin && \
 # install astrolib in GDL
     ln -s /opt/astrolib /usr/local/share/gnudatalanguage/lib && \
