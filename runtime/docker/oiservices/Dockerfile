@@ -61,6 +61,10 @@ ENV OMP_THREAD_LIMIT=${OMP_THREAD_LIMIT}
 # Reduce memory footprint for tomcat (UWS):
 ENV CATALINA_OPTS="-Xms64m -Xmx128m"
 
+ARG BUILD_DATE=""
+
+RUN set -eux ; \
+    echo "BUILD_DATE: $BUILD_DATE"
 
 
 ###################################
@@ -119,7 +123,7 @@ RUN set -eux ; \
     if [ ${OMP_THREAD_LIMIT} -gt 1 ]; then USE_OPENMP="ON"; else USE_OPENMP="OFF"; fi && \
     export CMAKE_ARGS="-DOPENMP=${USE_OPENMP} -DEDITLINE=ON -DREADLINE=ON -DFFTW=ON -DEIGEN3=ON -DEIGEN3DIR=/usr/local/include/eigen3/ -DX11=OFF" && \
     export CMAKE_ARGS="$CMAKE_ARGS -DGRAPHICSMAGICK=OFF -DMAGICK=OFF -DWXWIDGETS=OFF -DTIFF=OFF -DNETCDF=OFF -DHDF=OFF -DHDF5=OFF -DPYTHON=OFF" && \
-    export CMAKE_ARGS="$CMAKE_ARGS -DLIBPROJ=OFF -DSHAPELIB=OFF -DEXPAT=OFF -DUDUNITS2=OFF -DGRIB=OFF -DGLPK=OFF -DINTERACTIVE_GRAPHICS=OFF" && \
+    export CMAKE_ARGS="$CMAKE_ARGS -DLIBPROJ=OFF -DSHAPELIB=OFF -DEXPAT=OFF -DUDUNITS2=OFF -DGRIB=OFF -DGLPK=OFF -DINTERACTIVE_GRAPHICS=OFF -DQHULL=OFF" && \
     cd /opt/gdl && mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" $CMAKE_ARGS .. && \
     make -j ${MAKEJ_NTHREADS} $MAKE_OPTS && make install && rm -rf /opt/gdl && rm -rf /usr/local/share/gnudatalanguage/resource/maps && \
@@ -132,6 +136,8 @@ RUN set -eux ; \
     ln -s /opt/astrolib /usr/local/share/gnudatalanguage/lib && \
     apt-get purge --auto-remove -y $BUILD_PKG && rm -rf /var/lib/apt/lists/* ; \
     fi
+
+ENV WISARD_CI_VERSION="JMMC-OpenDev/wisard-ci/main-${BUILD_DATE}"
 
 
 ###################################
@@ -245,6 +251,8 @@ RUN set -eux ; \
     apt-get purge --auto-remove -y $BUILD_PKG && rm -rf /var/lib/apt/lists/* ; \
     fi
 
+ENV MIRA_CI_VERSION="${MIRA_CI_VERSION}/master-${BUILD_DATE}"
+
 
 # add custom wrapper for mira-ci
 ADD mira-ci.sh /usr/local/bin/
@@ -262,7 +270,7 @@ RUN set -eux ; \
 #  Sparco
 #
 
-ENV SPARCO_CI_VERSION="FerreolS/mira-sparco-multi"
+ENV SPARCO_CI_VERSION="kluskaj/mira-sparco-multi"
 
 # install Sparco plugin
 # inspired from https://github.com/FerreolS/mira-sparco-multi/blob/master/docker/Dockerfile
@@ -274,6 +282,8 @@ RUN set -eux ; \
 #    apk del .build-deps  && \
 #    rm -rf /var/cache/apk/* && rm -rf /usr/local/share/doc
     fi
+
+ENV SPARCO_CI_VERSION="${SPARCO_CI_VERSION}/master-${BUILD_DATE}"
 
 # add custom wrapper for mira-ci
 ADD sparco-ci.sh /usr/local/bin/

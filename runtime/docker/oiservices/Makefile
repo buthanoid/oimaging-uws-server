@@ -71,6 +71,7 @@
 
 VERSION=3.5.0a
 NAME=oiservices
+NOW := $(shell date --iso)
 
 TAR_FILE=$(NAME)-$(VERSION).tar
 # hard-coded as docker image is not prepared on server VM
@@ -88,7 +89,7 @@ force-build:	Dockerfile OImaging-uws.war
 	docker build --no-cache=true -t $(NAME):$(VERSION) --rm .
 
 build:	Dockerfile OImaging-uws.war
-	docker build -t $(NAME):$(VERSION) --build-arg OMP_THREAD_LIMIT=$(OMP_THREAD_LIMIT) --build-arg MAKEJ_NTHREADS=$(NTHREADS) --rm .
+	docker build -t $(NAME):$(VERSION) --build-arg OMP_THREAD_LIMIT=$(OMP_THREAD_LIMIT) --build-arg MAKEJ_NTHREADS=$(NTHREADS) --build-arg BUILD_DATE=$(NOW) --rm .
 
 tag_latest:
 	docker tag $(NAME):$(VERSION) $(NAME):latest
