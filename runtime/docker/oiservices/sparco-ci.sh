@@ -56,7 +56,7 @@ function printUsage ()
 }
 
 
-# command-line parameters will be given to ymira
+# command-line parameters will be given to MIRA
 # just check
 if [ $# -lt 2 ]
 then
@@ -64,47 +64,8 @@ then
     printUsage
 fi
 
-CLIARGS="$*"
-shift $(( $# - 2 ))
-INPUT=$1
-OUTPUT=$2
-OUTPUT="$(readlink -f ${OUTPUT} )"
+echo "SPARCO_CI_VERSION: ${SPARCO_CI_VERSION}"
 
-# Run execution
-cd $SCRIPTROOT
-# If env var is defined, assume we are remote on the JMMC servers.
-if [ -z "$MIRA_CI_VERSION" ]
-then
-  if [ -z "$IDL_STARTUP" ] #if we have no IDL env available....
-  then
-    export GDL_STARTUP="gdl_startup.pro"
-    echo "DEBUG: using startup procedure $GDL_STARTUP"
-  else
-    echo "DEBUG: using startup procedure $IDL_STARTUP"
-  fi
-else
-  echo "MIRA_CI_VERSION: $MIRA_CI_VERSION"
+# delegate to mira-ci script:
+$SCRIPTROOT/bin/mira-ci -plugin=sparcomulti $*
 
-  # add helper to launch gdl properly. this procedure shoudl insure that the IDL/GDL !PATH contains idlastro procedures (readfits.pro etc).
-  export GDL_STARTUP="gdl_startup.pro"
-fi
-
-
-TMPOUTPUT="${OUTPUT}.tmp"
-
-# start mira + sparco plugin and get intermediate result in OUTPUT.tmp file
-echo "cmd: \"ymira -plugin=sparcomulti -oi-imaging -save_visibilities $CLIARGS\""
-ymira -plugin=sparcomulti -oi-imaging -save_visibilities $CLIARGS
-mv "${OUTPUT}" "${TMPOUTPUT}"
-
-# produce compliant oifits for OIMAGING:
-if [ -e "${TMPOUTPUT}" ] ; then
-    CONVERT_COMMAND="model2oifits,'"$INPUT"','${TMPOUTPUT}','"$OUTPUT"'"
-
-    cd $WISARD_DIR
-
-    gdl -e "$CONVERT_COMMAND"
-
-    # clean intermediate file
-    if [ -e "${TMPOUTPUT}" ] ; then rm "${TMPOUTPUT}" ; fi
-fi

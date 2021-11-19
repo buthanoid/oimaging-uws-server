@@ -61,11 +61,6 @@ ENV OMP_THREAD_LIMIT=${OMP_THREAD_LIMIT}
 # Reduce memory footprint for tomcat (UWS):
 ENV CATALINA_OPTS="-Xms64m -Xmx128m"
 
-ARG BUILD_DATE=""
-
-RUN set -eux ; \
-    echo "BUILD_DATE: $BUILD_DATE"
-
 
 ###################################
 #
@@ -75,6 +70,7 @@ ENV BSMEM_CI_VERSION="bsmem-v2.2.1"
 
 RUN set -eux ; \
     if [ "$DO_BSMEM" -eq "1" ] ; then \
+    BUILD_DATE=`date -Is` && \
 # install oifitslib for bsmem after prerequisites
 	BUILD_PKG="git cmake make gcc g++ gfortran libcfitsio-dev libglib2.0-dev libfftw3-dev libnfft3-dev bzip2" && \
     apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG libglib2.0-bin && \
@@ -85,13 +81,13 @@ RUN set -eux ; \
 # install bsmem
     echo "install BSMem from mrao.cam.ac.uk" && \
     cd /opt && wget -q http://www.mrao.cam.ac.uk/downloads/bsmem/${BSMEM_CI_VERSION}.tar.bz2 && \
+    echo "${BSMEM_CI_VERSION}-$BUILD_DATE" > /opt/BSMEM_CI_VERSION && \
     bunzip2 bsmem*.bz2 >/dev/null 2>&1 && tar -xf bsmem*.tar >/dev/null 2>&1 && rm bsmem*.tar && \
-    apt-get install -y --no-install-recommends pgplot5 xterm libfftw3-single3 libfftw3-double3 libnfft3-single2 libnfft3-double2 && \
+    apt-get install -y --no-install-recommends pgplot5 xterm libcfitsio9 libfftw3-single3 libfftw3-double3 libnfft3-single2 libnfft3-double2 && \
     cd /opt/bsmem*/build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" .. && \
     make $MAKE_OPTS && make install && cd /opt && rm -rf /opt/bsmem* && \
     apt-get purge --auto-remove -y $BUILD_PKG && rm -rf /var/lib/apt/lists/* ; \
     fi
-
 
 
 ###################################
@@ -107,8 +103,9 @@ ENV GDL_VERSION="gnudatalanguage/gdl.git" \
 
 RUN set -eux ; \
     if [ "$DO_WISARD" -eq "1" ] ; then \
-    BUILD_PKG="git cmake make gcc g++ libncurses5-dev zlib1g-dev libgsl-dev libplplot-dev libreadline-dev libfftw3-dev" && \
-    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG unzip libpng16-16 libncurses5 zlib1g libgsl2? libplplot17 libplplot-data libreadline8 libplplotcxx?? libfftw3-single3 libfftw3-double3 libtirpc3 && \
+    BUILD_DATE=`date -Is` && \
+    BUILD_PKG="git cmake make gcc g++ libncurses5-dev zlib1g-dev libgsl-dev libplplot-dev libreadline-dev libcfitsio-dev libfftw3-dev" && \
+    apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG unzip libpng16-16 libncurses5 zlib1g libgsl2? libplplot17 libplplot-data libreadline8 libplplotcxx?? libcfitsio9 libfftw3-single3 libfftw3-double3 libtirpc3 && \
 # Eigen install into /usr/local/include/eigen3/ (only header files)
     cd /opt && wget -q https://gitlab.com/libeigen/eigen/-/archive/3.3.9/eigen-3.3.9.zip && unzip -q eigen-*.zip && rm eigen-*.zip && \
     cd /opt/eigen-* && mkdir build && cd build && \
@@ -120,7 +117,7 @@ RUN set -eux ; \
 # Gdl
     cd /opt/ && git clone --depth 1 https://github.com/${GDL_VERSION} && \
 # do not disable openmp, see OMP_THREAD_LIMIT env
-    if [ ${OMP_THREAD_LIMIT} -gt 1 ]; then USE_OPENMP="ON"; else USE_OPENMP="OFF"; fi && \
+    if [ "${OMP_THREAD_LIMIT}" -gt "1" ]; then USE_OPENMP="ON"; else USE_OPENMP="OFF"; fi && \
     export CMAKE_ARGS="-DOPENMP=${USE_OPENMP} -DEDITLINE=ON -DREADLINE=ON -DFFTW=ON -DEIGEN3=ON -DEIGEN3DIR=/usr/local/include/eigen3/ -DX11=OFF" && \
     export CMAKE_ARGS="$CMAKE_ARGS -DGRAPHICSMAGICK=OFF -DMAGICK=OFF -DWXWIDGETS=OFF -DTIFF=OFF -DNETCDF=OFF -DHDF=OFF -DHDF5=OFF -DPYTHON=OFF" && \
     export CMAKE_ARGS="$CMAKE_ARGS -DLIBPROJ=OFF -DSHAPELIB=OFF -DEXPAT=OFF -DUDUNITS2=OFF -DGRIB=OFF -DGLPK=OFF -DINTERACTIVE_GRAPHICS=OFF -DQHULL=OFF" && \
@@ -130,14 +127,13 @@ RUN set -eux ; \
     rm -rf /usr/local/include/eigen3 && \
     echo "install WISARD-CI ( version: ${WISARD_CI_VERSION} )" && \
 # install wisard from github
-    cd /opt/ && git clone --depth 1 -b ${WISARD_CI_VERSION} https://github.com/JMMC-OpenDev/wisard-ci.git && \    
-    rm -rf $WISARD_DIR/inputdata && ln -s $WISARD_DIR/bin/wisard-ci /usr/bin && \
+    cd /opt/ && git clone --depth 1 -b ${WISARD_CI_VERSION} https://github.com/JMMC-OpenDev/wisard-ci.git && \
+    echo "${WISARD_CI_VERSION}-$BUILD_DATE" > /opt/WISARD_CI_VERSION && \
+    rm -rf $WISARD_DIR/inputdata && \
 # install astrolib in GDL
     ln -s /opt/astrolib /usr/local/share/gnudatalanguage/lib && \
     apt-get purge --auto-remove -y $BUILD_PKG && rm -rf /var/lib/apt/lists/* ; \
     fi
-
-ENV WISARD_CI_VERSION="JMMC-OpenDev/wisard-ci/main-${BUILD_DATE}"
 
 
 ###################################
@@ -155,6 +151,7 @@ RUN set -eux ; \
 #    apk add --update --no-cache --virtual .build-deps make wget build-base zip && \
 #    apk add --update --no-cache rlwrap && \
 # rlwrap is only used in interpreter mode (skipped)
+    BUILD_DATE=`date -Is` && \
     BUILD_PKG="make gcc g++ gfortran zip libtiff5-dev libfftw3-dev libgsl-dev" && \
     apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG unzip libtiff5 libtiffxx5 libfftw3-single3 libfftw3-double3 libgsl?? && \
     mkdir -p /opt && cd /opt && \
@@ -243,25 +240,13 @@ RUN set -eux ; \
     ./configure --cflags="$GCC_OPTS -I/usr/local/include -pedantic -std=c99" && \
     make $MAKE_OPTS && make install && cd /opt && rm -rf ynfft-master && \
     wget -q https://github.com/${MIRA_CI_VERSION}/archive/master.zip && \
+    echo "${MIRA_CI_VERSION}-$BUILD_DATE" > /opt/MIRA_CI_VERSION && \
     unzip master.zip && rm master.zip && cd MiRA-master/ && \
     ./configure --prefix=/usr/local && make $MAKE_OPTS install && \
     cd /opt && rm -rf MiRA-master && rm -rf /opt/yorick/doc && \
 #    apk del .build-deps && \
 #    rm -rf /var/cache/apk/* && rm -rf /usr/local/share/doc
     apt-get purge --auto-remove -y $BUILD_PKG && rm -rf /var/lib/apt/lists/* ; \
-    fi
-
-ENV MIRA_CI_VERSION="${MIRA_CI_VERSION}/master-${BUILD_DATE}"
-
-
-# add custom wrapper for mira-ci
-ADD mira-ci.sh /usr/local/bin/
-
-RUN set -eux ; \
-    if [ "$DO_MIRA" -eq "1" ] ; then \
-    chmod +x /usr/local/bin/mira-ci.sh && \
-    ln -s /usr/local/bin/mira-ci.sh /usr/local/bin/mira-ci && \
-    ln -s /usr/local/bin/ymira /usr/bin ; \
     fi
 
 
@@ -276,26 +261,14 @@ ENV SPARCO_CI_VERSION="kluskaj/mira-sparco-multi"
 # inspired from https://github.com/FerreolS/mira-sparco-multi/blob/master/docker/Dockerfile
 RUN set -eux ; \
     if [ "$DO_SPARCO" -eq "1" ] ; then \
+    BUILD_DATE=`date -Is` && \
 # RUN echo http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories && \
 #    apk add --update --no-cache --virtual .build-deps wget && \
+    echo "${SPARCO_CI_VERSION}-$BUILD_DATE" > /opt/SPARCO_CI_VERSION && \
     cd /opt/yorick/i && wget https://raw.githubusercontent.com/${SPARCO_CI_VERSION}/master/mira2_plugin_sparcomulti.i ; \
 #    apk del .build-deps  && \
 #    rm -rf /var/cache/apk/* && rm -rf /usr/local/share/doc
     fi
-
-ENV SPARCO_CI_VERSION="${SPARCO_CI_VERSION}/master-${BUILD_DATE}"
-
-# add custom wrapper for mira-ci
-ADD sparco-ci.sh /usr/local/bin/
-
-RUN set -eux ; \
-    if [ "$DO_SPARCO" -eq "1" ] ; then \
-    chmod +x /usr/local/bin/sparco-ci.sh && \
-    ln -s /usr/local/bin/sparco-ci.sh /usr/local/bin/sparco-ci ; \
-    fi
-
-# TODO: remove patches to fix sparco plugin:
-ADD sparco_patch/mira2_plugin_sparcomulti.i /opt/yorick/i/
 
 
 ###################################
@@ -303,11 +276,48 @@ ADD sparco_patch/mira2_plugin_sparcomulti.i /opt/yorick/i/
 #  Finalization
 #
 
+# Patches:
+
+# TODO: remove patches to fix sparco plugin:
+ADD sparco_patch/mira2_plugin_sparcomulti.i /opt/yorick/i/
+
+# Fix wisard model2oifits.pro (2021.11) for MIRA:
+ADD wisard_patch/model2oifits.pro $WISARD_DIR/
+
+
+# Enable fitsverify (1=enable):
+ARG DO_FITS_VERIFY=1
+
+# Install fitsverify (DEV)
+RUN set -eux ; \
+    if [ "$DO_FITS_VERIFY" -eq "1" ] ; then \
+    apt-get update && apt-get install -y --no-install-recommends fitsverify && \
+    echo "1" > /opt/FITS_VERIFY ; \
+    fi
+
+
+# Update custom wrappers:
+ADD bsmem-ci.sh /usr/local/bin/bsmem-ci.sh
+ADD wisard-ci.sh /usr/local/bin/wisard-ci
+ADD mira-ci.sh /usr/local/bin/mira-ci
+ADD sparco-ci.sh /usr/local/bin/sparco-ci
+
+RUN set -eux ; \
+    if [ "$DO_BSMEM" -eq "1" ] ; then \
+    mv /usr/local/bin/bsmem-ci /usr/local/bin/bsmem-ci-c && \
+    mv /usr/local/bin/bsmem-ci.sh /usr/local/bin/bsmem-ci ; \
+    fi
+RUN set -eux ; \
+    if [ "$DO_MIRA" -eq "1" ] ; then \
+    ln -s /usr/local/bin/ymira /usr/bin ; \
+    fi
+
+
 # Use valgrind with wisard:
 ADD valgrind-wisard-ci.sh $WISARD_DIR/bin/
 
 RUN set -eux ; \
-    if [ $USE_VALGRIND -eq 1 ] ; then \
+    if [ "$USE_VALGRIND" -eq "1" ] ; then \
     apt-get update && apt-get install -y --no-install-recommends valgrind && \
     rm /usr/bin/wisard-ci && \
     ln -s $WISARD_DIR/bin/valgrind-wisard-ci.sh /usr/bin/wisard-ci && \
@@ -318,6 +328,11 @@ RUN set -eux ; \
 # Auto-deploy OImaging-uws.war on startup
 # note: CONTEXT_PATH is not honored : app dir is the basename of the war (OImaging-uws here)
 ADD OImaging-uws.war /usr/local/tomcat/webapps/
+
+
+# Add run_catalina.sh to set env vars:
+ADD run_catalina.sh /usr/local/tomcat/bin/
+CMD ["run_catalina.sh"]
 
 # Define USER to restrict privileges (not root) once image is production ready:
 USER tomcat

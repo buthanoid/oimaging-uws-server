@@ -4,7 +4,7 @@
 #*******************************************************************************
 
 #
-# MIRA wrapper for OIMAGING
+# BSMEM wrapper for OIMAGING
 #
 
 
@@ -51,12 +51,12 @@ fi
 # Print usage and exit program
 function printUsage ()
 {
-  ymira -help
+  bsmem-ci -help
   exit 1
 }
 
 
-# command-line parameters will be given to MIRA
+# command-line parameters will be given to BSMEM
 # just check
 if [ $# -lt 2 ]
 then
@@ -82,57 +82,23 @@ fi
 # Run execution
 cd $SCRIPTROOT
 
-echo "MIRA_CI_VERSION: ${MIRA_CI_VERSION}"
+echo "BSMEM_CI_VERSION: ${BSMEM_CI_VERSION}"
 
 # If env var is defined, assume we are remote on the JMMC servers.
-if [ -z "$MIRA_CI_VERSION" ]
+if [ -z "$BSMEM_CI_VERSION" ]
 then
-  if [ -z "$IDL_STARTUP" ] #if we have no IDL env available....
-  then
-    export GDL_STARTUP="gdl_startup.pro"
-    echo "DEBUG: using startup procedure $GDL_STARTUP"
-  else
-    echo "DEBUG: using startup procedure $IDL_STARTUP"
-  fi
-else
-  # add helper to launch gdl properly. this procedure shoudl insure that the IDL/GDL !PATH contains idlastro procedures (readfits.pro etc).
-  export GDL_STARTUP="gdl_startup.pro"
+  echo "missing BSMEM_CI_VERSION !"
 fi
 
-# start mira and get intermediate result
-echo "cmd: \"ymira -oi-imaging -save_visibilities $CLIARGS\""
-ymira -oi-imaging -save_visibilities $CLIARGS
+echo "cmd: \"bsmem-ci $CLIARGS\""
+bsmem-ci-c $CLIARGS
 
-# produce compliant oifits for OIMAGING:
-if [ -e "${OUTPUT}" ] ; then
-
-    # Check OUTPUT:
-    if [ "$FITS_VERIFY" -eq "1" ] ; then
-      echo ""
-      echo "--- fitsverify $OUTPUT ---"
-      fitsverify -q $OUTPUT
-      if [ $? != 0 ] ; then fitsverify $OUTPUT; fi
-      echo "---"
-    fi
-
-    TMPOUTPUT="${OUTPUT}.tmp"
-    mv "${OUTPUT}" "${TMPOUTPUT}"
-
-    CONVERT_COMMAND="model2oifits,'"$INPUT"','${TMPOUTPUT}','"$OUTPUT"'"
-
-    cd $WISARD_DIR
-    gdl -e "$CONVERT_COMMAND"
-
-    # clean intermediate file
-    if [ -e "${TMPOUTPUT}" ] ; then rm "${TMPOUTPUT}" ; fi
-
-    # Check OUTPUT:
-    if [ "$FITS_VERIFY" -eq "1" ] ; then
-      echo ""
-      echo "--- fitsverify $OUTPUT ---"
-      fitsverify -q $OUTPUT
-      if [ $? != 0 ] ; then fitsverify $OUTPUT; fi
-      echo "---"
-    fi
+# Check OUTPUT:
+if [ "$FITS_VERIFY" -eq "1" ] ; then
+  echo ""
+  echo "--- fitsverify $OUTPUT ---"
+  fitsverify -q $OUTPUT
+  if [ $? != 0 ] ; then fitsverify $OUTPUT; fi
+  echo "---"
 fi
 
