@@ -329,13 +329,13 @@ if (n_elements(oitarget) gt 1) then message,/informational,"WARNING -- Output fi
 ;LBO: dead code ?
 
 ; prepare output HDU
-;LBO:  FXADDPAR,outhead,'XTENSION','BINTABLE'
-;LBO:  FXADDPAR,outhead,'EXTNAME','IMAGE-OI INPUT PARAM'
-;LBO:  FXADDPAR,outhead,'TARGET',target
+  FXADDPAR,outhead,'XTENSION','BINTABLE'
+  FXADDPAR,outhead,'EXTNAME','IMAGE-OI INPUT PARAM'
+  FXADDPAR,outhead,'TARGET',target
 ;  FXADDPAR,outhead,'USE_VIS', 'T'
 ;  FXADDPAR,outhead,'USE_VIS2','T'
 ;  FXADDPAR,outhead,'USE_T3', 'T'
-;LBO:  if (n_elements(init_img) gt 0) then FXADDPAR,outhead,'INIT_IMG',init_img ; the init image file passed
+  if (n_elements(init_img) gt 0) then FXADDPAR,outhead,'INIT_IMG',init_img ; the init image file passed
 ;  FXADDPAR,outhead,'MAXITER',nbiter
 ;  FXADDPAR,outhead,'RGL_NAME',regul_name[regul]
 ;  if (n_elements(scale) gt 0 ) then FXADDPAR,outhead,'SCALE',scale
