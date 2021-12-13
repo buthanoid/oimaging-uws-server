@@ -97,7 +97,7 @@ RUN set -eux ; \
 
 # GDL: gnudatalanguage/gdl.git or bourgesl/gdl.git
 ENV GDL_VERSION="gnudatalanguage/gdl.git" \
-    WISARD_CI_VERSION="v3.2.0" \
+    WISARD_CI_VERSION="v3.2.2" \
     WISARD_DIR="/opt/wisard-ci" \
     ASTROLIB_DIR="/opt/astrolib"
 
@@ -277,13 +277,7 @@ RUN set -eux ; \
 #
 
 # Patches:
-
-# TODO: remove patches to fix sparco plugin:
-ADD sparco_patch/mira2_plugin_sparcomulti.i /opt/yorick/i/
-
-# Fix wisard model2oifits.pro (2021.11) for MIRA:
-ADD wisard_patch/model2oifits.pro $WISARD_DIR/
-
+# none
 
 # Enable fitsverify (1=enable):
 ARG DO_FITS_VERIFY=1
@@ -291,7 +285,7 @@ ARG DO_FITS_VERIFY=1
 # Install fitsverify (DEV)
 RUN set -eux ; \
     if [ "$DO_FITS_VERIFY" -eq "1" ] ; then \
-    apt-get update && apt-get install -y --no-install-recommends fitsverify && \
+    apt-get update && apt-get install -y --no-install-recommends fitsverify qfits-tools && \
     echo "1" > /opt/FITS_VERIFY ; \
     fi
 

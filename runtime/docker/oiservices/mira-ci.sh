@@ -113,6 +113,9 @@ if [ -e "${OUTPUT}" ] ; then
       fitsverify -q $OUTPUT
       if [ $? != 0 ] ; then fitsverify $OUTPUT; fi
       echo "---"
+      echo "--- fitsverify $OUTPUT ---"
+      dfits -x 0 $OUTPUT
+      echo "---"
     fi
 
     TMPOUTPUT="${OUTPUT}.tmp"
@@ -133,6 +136,9 @@ if [ -e "${OUTPUT}" ] ; then
       fitsverify -q $OUTPUT
       if [ $? != 0 ] ; then fitsverify $OUTPUT; fi
       echo "---"
-    fi
+      echo "--- fitsverify $OUTPUT ---"
+      dfits -x 0 $OUTPUT
+      echo "---"
+    fi    
 fi
 

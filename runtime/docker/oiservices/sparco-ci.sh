@@ -4,7 +4,7 @@
 #*******************************************************************************
 
 #
-# Sparco (MIRA) wrapper for OIMAGING
+# Sparco MIRA wrapper for OIMAGING
 #
 
 
