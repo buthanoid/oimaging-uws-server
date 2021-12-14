@@ -8,7 +8,9 @@ import fr.jmmc.jmcs.util.runner.LocalLauncher;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.Future;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -268,10 +270,34 @@ public class OImagingUwsService extends HttpServlet {
             out.println("<pre>");
             out.println(OImagingUwsStats.INSTANCE.getStats());
             out.println("</pre>");
+            
+            out.println("<h2>Software versions</h2>");
+            out.println(dumpProperties(System.getenv(), new StringBuilder(1024), "CI_VERSION").toString());
 
             out.println("</body></html>");
 
             return true;
+        }
+
+        public static StringBuilder dumpProperties(final Map<?, ?> properties, final StringBuilder sb, final String pattern) {
+            if (properties == null) {
+                return sb;
+            }
+
+            // Sort properties
+            final Object[] keys = new Object[properties.size()];
+            properties.keySet().toArray(keys);
+            Arrays.sort(keys);
+
+            // For each property, we make a string like "{name} : {value}"
+            sb.append("<ul>");
+            for (Object key : keys) {
+                if (key.toString().contains(pattern)) {
+                    sb.append("<li>").append(key).append(" : ").append(properties.get(key)).append("</li>");
+                }
+            }
+            sb.append("</ul>");
+            return sb;
         }
     }
 
