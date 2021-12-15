@@ -280,13 +280,13 @@ RUN set -eux ; \
 # none
 
 # Enable fitsverify (1=enable):
-ARG DO_FITS_VERIFY=1
+ARG DO_FITS_VERIFY=0
 
 # Install fitsverify (DEV)
 RUN set -eux ; \
+    echo "$DO_FITS_VERIFY" > /opt/FITS_VERIFY && \
     if [ "$DO_FITS_VERIFY" -eq "1" ] ; then \
-    apt-get update && apt-get install -y --no-install-recommends fitsverify qfits-tools && \
-    echo "1" > /opt/FITS_VERIFY ; \
+    apt-get update && apt-get install -y --no-install-recommends fitsverify qfits-tools ; \
     fi
 
 

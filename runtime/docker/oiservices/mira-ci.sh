@@ -124,7 +124,7 @@ if [ -e "${OUTPUT}" ] ; then
     CONVERT_COMMAND="model2oifits,'"$INPUT"','${TMPOUTPUT}','"$OUTPUT"'"
 
     cd $WISARD_DIR
-    gdl -e "$CONVERT_COMMAND"
+    gdl -e "$CONVERT_COMMAND" 2>&1
 
     # clean intermediate file
     if [ -e "${TMPOUTPUT}" ] ; then rm "${TMPOUTPUT}" ; fi
