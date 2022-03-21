@@ -2,7 +2,7 @@
 # https://hub.docker.com/_/tomcat/
 #
 # debian buster (slim) with tomcat 8.5 / OpenJDK 8
-FROM tomcat:8.5-jdk8-openjdk-slim
+FROM tomcat:8.5-jdk8-openjdk-slim-buster
 
 ###################################
 #
