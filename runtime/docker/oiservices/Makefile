@@ -66,10 +66,13 @@
 #   - updated libs in Dockerfile
 #   - bump WISARD-CI to 3.1.14
 #   - enabled OPENMP back again 
+# History 3.6 :
+#   - updated BSMEM to 2.3.0
+#   - updated MiRA
 #
 
 
-VERSION=3.5.0a
+VERSION=3.6.0
 NAME=oiservices
 
 TAR_FILE=$(NAME)-$(VERSION).tar
