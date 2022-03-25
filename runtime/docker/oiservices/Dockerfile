@@ -66,7 +66,7 @@ ENV CATALINA_OPTS="-Xms64m -Xmx128m"
 #
 #  BSMEM
 #
-ENV BSMEM_CI_VERSION="bsmem-v2.2.1"
+ENV BSMEM_CI_VERSION="bsmem-v2.3.0"
 
 RUN set -eux ; \
     if [ "$DO_BSMEM" -eq "1" ] ; then \
@@ -74,7 +74,7 @@ RUN set -eux ; \
 # install oifitslib for bsmem after prerequisites
 	BUILD_PKG="git cmake make gcc g++ gfortran libcfitsio-dev libglib2.0-dev libfftw3-dev libnfft3-dev bzip2" && \
     apt-get update && apt-get install -y --no-install-recommends $BUILD_PKG libglib2.0-bin && \
-    cd /opt && git clone --depth 1 -b v2.4.0 https://github.com/jsy1001/oifitslib.git && cd oifitslib && \
+    cd /opt && git clone --depth 1 -b v2.6.2 https://github.com/jsy1001/oifitslib.git && cd oifitslib && \
     cd /opt/oifitslib/build && \
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" .. && \
     make $MAKE_OPTS && make install && cd /opt && rm -rf /opt/oifitslib && \
