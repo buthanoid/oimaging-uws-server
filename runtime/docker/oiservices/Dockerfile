@@ -280,7 +280,7 @@ RUN set -eux ; \
 # none
 
 # Enable fitsverify (1=enable):
-ARG DO_FITS_VERIFY=0
+ARG DO_FITS_VERIFY=1
 
 # Install fitsverify (DEV)
 RUN set -eux ; \
@@ -323,6 +323,8 @@ RUN set -eux ; \
 # note: CONTEXT_PATH is not honored : app dir is the basename of the war (OImaging-uws here)
 ADD OImaging-uws.war /usr/local/tomcat/webapps/
 
+# dev antoine
+ADD model2oifits.pro ${WISARD_DIR}/model2oifits.pro
 
 # Add run_catalina.sh to set env vars:
 ADD run_catalina.sh /usr/local/tomcat/bin/
