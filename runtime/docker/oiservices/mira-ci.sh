@@ -100,8 +100,8 @@ else
 fi
 
 # start mira and get intermediate result
-echo "cmd: \"ymira -oi-imaging -save_visibilities $CLIARGS\""
-ymira -oi-imaging -save_visibilities $CLIARGS
+echo "cmd: \"ymira -oi-imaging -save_visibilities -save_initial $CLIARGS\""
+ymira -oi-imaging -save_visibilities -save_initial $CLIARGS
 
 # produce compliant oifits for OIMAGING:
 if [ -e "${OUTPUT}" ] ; then

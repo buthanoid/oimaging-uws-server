@@ -69,10 +69,12 @@
 # History 3.6 :
 #   - updated BSMEM to 2.3.0
 #   - updated MiRA
+# History 3.6.1 :
+#   - upgraded WISARD-CI to 3.2.3 (params + mira initial image)
 #
 
 
-VERSION=3.6.0
+VERSION=3.6.1
 NAME=oiservices
 
 TAR_FILE=$(NAME)-$(VERSION).tar
@@ -119,7 +121,7 @@ $(TAR_FILE):
 
 # This image snapshot is used in the ansible jmmc-oimaging-uws role (look into vars so that the versions match)
 publish: $(TAR_FILE)
-	scp $(TAR_FILE) sysjmmc@container.prod.jmmc.fr:/data/docker/
+	scp $(TAR_FILE) apps-old.jmmc.fr.to:/data/docker/
 
 exec-bsmem-ci-help:
 	docker run -it $(NAME):$(VERSION) bsmem-ci -h
