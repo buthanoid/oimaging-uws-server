@@ -9,6 +9,8 @@ See [OImaging](https://www.jmmc.fr/oimaging)
 See [JMMC releases](https://www.jmmc.fr/releases/)
 See [JMMC OpenDev @ github](https://github.com/JMMC-OpenDev/)
 
+See [CI nightly builds](https://github.com/JMMC-OpenDev/jmmc-java-build/actions/workflows/build.yml)
+
 
 ## Issues / Board
 
@@ -39,4 +41,7 @@ Requirements:
 - Docker
 
 See [README](https://github.com/JMMC-OpenDev/oimaging-uws-server/blob/master/runtime/docker/oiservices/README.txt)
+
+See [JMMC Java Build](https://github.com/JMMC-OpenDev/jmmc-java-build)
+See [CI nightly builds](https://github.com/JMMC-OpenDev/jmmc-java-build/actions/workflows/build.yml)
 
