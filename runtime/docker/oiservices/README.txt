@@ -6,6 +6,9 @@ make
 # Run local UWS server docker image:
 make run
 
+# Test software versions:
+firefox http://localhost:8080/OImaging-uws/oimaging
+
 # Access to docker container:
 docker ps
 docker exec -it <containerId> bash

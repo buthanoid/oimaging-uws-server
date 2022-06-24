@@ -71,10 +71,15 @@
 #   - updated MiRA
 # History 3.6.1 :
 #   - upgraded WISARD-CI to 3.2.3 (params + mira initial image)
+# History 3.6.2 :
+#   - upgraded WISARD-CI to 3.2.4 (fix init image header with hdu name)
+#   - upgraded BSMEM-CI (collect sources from gitlab.com)
 #
 
 
-VERSION=3.6.1
+
+
+VERSION=3.6.2
 NAME=oiservices
 
 TAR_FILE=$(NAME)-$(VERSION).tar

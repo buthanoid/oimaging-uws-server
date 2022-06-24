@@ -3,10 +3,12 @@
 #------------------------------------------------------------------------------#
 
 ###### Debian Main Repos
+deb http://ftp.debian.org/debian/ stable main contrib non-free
 #deb http://ftp.fr.debian.org/debian/ stable main contrib non-free
-deb http://ftp.de.debian.org/debian/ stable main contrib non-free
+#deb http://ftp.de.debian.org/debian/ stable main contrib non-free
 
+deb http://ftp.debian.org/debian/ stable-updates main contrib non-free
 #deb http://ftp.fr.debian.org/debian/ stable-updates main contrib non-free
-deb http://ftp.de.debian.org/debian/ stable-updates main contrib non-free
+#deb http://ftp.de.debian.org/debian/ stable-updates main contrib non-free
 
 #deb https://security.debian.org/ stable/updates main

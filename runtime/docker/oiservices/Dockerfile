@@ -66,7 +66,7 @@ ENV CATALINA_OPTS="-Xms64m -Xmx128m"
 #
 #  BSMEM
 #
-ENV BSMEM_CI_VERSION="bsmem-v2.3.0"
+ENV BSMEM_CI_VERSION="v2.3.0"
 
 RUN set -eux ; \
     if [ "$DO_BSMEM" -eq "1" ] ; then \
@@ -79,10 +79,9 @@ RUN set -eux ; \
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" .. && \
     make $MAKE_OPTS && make install && cd /opt && rm -rf /opt/oifitslib && \
 # install bsmem
-    echo "install BSMem from mrao.cam.ac.uk" && \
-    cd /opt && wget -q http://www.mrao.cam.ac.uk/downloads/bsmem/${BSMEM_CI_VERSION}.tar.bz2 && \
+    echo "install BSMem ${BSMEM_CI_VERSION} from gitlab.com/jsy1001/bsmem" && \
+    cd /opt/ && git clone --depth 1 -b ${BSMEM_CI_VERSION} https://gitlab.com/jsy1001/bsmem.git && \
     echo "${BSMEM_CI_VERSION}-$BUILD_DATE" > /opt/BSMEM_CI_VERSION && \
-    bunzip2 bsmem*.bz2 >/dev/null 2>&1 && tar -xf bsmem*.tar >/dev/null 2>&1 && rm bsmem*.tar && \
     apt-get install -y --no-install-recommends pgplot5 xterm libcfitsio9 libfftw3-single3 libfftw3-double3 libnfft3-single2 libnfft3-double2 && \
     cd /opt/bsmem*/build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE="$GCC_OPTS" -DCMAKE_CXX_FLAGS_RELEASE="$GCC_OPTS" .. && \
     make $MAKE_OPTS && make install && cd /opt && rm -rf /opt/bsmem* && \
@@ -97,7 +96,7 @@ RUN set -eux ; \
 
 # GDL: gnudatalanguage/gdl.git or bourgesl/gdl.git
 ENV GDL_VERSION="gnudatalanguage/gdl.git" \
-    WISARD_CI_VERSION="v3.2.3" \
+    WISARD_CI_VERSION="v3.2.4" \
     WISARD_DIR="/opt/wisard-ci" \
     ASTROLIB_DIR="/opt/astrolib"
 
