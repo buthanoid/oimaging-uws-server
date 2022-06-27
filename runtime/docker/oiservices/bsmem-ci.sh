@@ -51,7 +51,7 @@ fi
 # Print usage and exit program
 function printUsage ()
 {
-  bsmem-ci-c -help
+  bsmem-ci-c -h
   exit 1
 }
 
