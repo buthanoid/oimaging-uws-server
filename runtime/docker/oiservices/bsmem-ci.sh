@@ -51,7 +51,7 @@ fi
 # Print usage and exit program
 function printUsage ()
 {
-  bsmem-ci -help
+  bsmem-ci-c -help
   exit 1
 }
 
@@ -90,7 +90,7 @@ then
   echo "missing BSMEM_CI_VERSION !"
 fi
 
-echo "cmd: \"bsmem-ci $CLIARGS\""
+echo "cmd: \"bsmem-ci-c $CLIARGS\""
 bsmem-ci-c $CLIARGS
 
 # Check OUTPUT:
