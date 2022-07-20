@@ -74,12 +74,14 @@
 # History 3.6.2 :
 #   - upgraded WISARD-CI to 3.2.4 (fix init image header with hdu name)
 #   - upgraded BSMEM-CI (collect sources from gitlab.com)
+# History 3.7.0 (2022.07.20):
+#   - upgraded Sparco plugin (mira-sparco-multi from kluskaj)
 #
 
 
 
 
-VERSION=3.6.2
+VERSION=3.7.0
 NAME=oiservices
 
 TAR_FILE=$(NAME)-$(VERSION).tar
